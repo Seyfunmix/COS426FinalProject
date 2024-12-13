@@ -19,7 +19,7 @@ class SeedScene extends Scene {
         };
 
         // Set background to a nice color
-        this.background = new Color(0x7ec0ee); // Light blue
+        this.background = new Color(0x000000); // Light blue
 
         // Add Ground
         const ground = new Ground(this); // Ground added with update capability

@@ -10,6 +10,14 @@ import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
 import { AudioManager } from './AudioManager'; // Import your AudioManager
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { Vector2 } from 'three';
+
+import * as THREE from 'three';
+
+
 
 // Initialize core ThreeJS components
 const scene = new SeedScene();
@@ -24,6 +32,7 @@ camera.lookAt(new Vector3(0, 0, 0));
 // Set up AudioManager
 const audioManager = new AudioManager(camera);
 //audioManager.playBackgroundMusic('//testmusic.mp3', 0.5); // Specify the path to your music file
+
 
 
 
@@ -42,6 +51,7 @@ controls.enablePan = false;
 controls.minDistance = 4;
 controls.maxDistance = 16;
 controls.update();
+
 
 // Game state
 let gameStarted = false;
