@@ -43,8 +43,10 @@ const onAnimationFrameHandler = (timeStamp) => {
     const player = scene.player;
     camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
     // Make the camera look in the direction the cube is moving (negative x-axis)
-    //camera.lookAt(player.position.x - 1, player.position.y, player.position.z); // Adjust for movement direction
+    camera.lookAt(player.position.x + 1, player.position.y, player.position.z); // Adjust for movement direction
 
+    //camera.position.set(6, 3, -10);
+    //camera.lookAt(new Vector3(0, 0, 0));
 
     renderer.render(scene, camera);
     scene.update && scene.update(timeStamp);

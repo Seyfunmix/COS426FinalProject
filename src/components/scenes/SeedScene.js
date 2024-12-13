@@ -61,7 +61,7 @@ class SeedScene extends Scene {
         }
 
         // Move the player forward along the x-axis
-        this.player.position.x -= 0.05; // Adjust speed as needed
+        this.player.position.x += 0.05; // Adjust speed as needed
 
         // Check for collisions with obstacles
         this.obstacles.forEach((obstacle) => {
