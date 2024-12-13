@@ -2,7 +2,7 @@ import { Mesh, PlaneGeometry, MeshStandardMaterial, DoubleSide } from 'three';
 
 class Portal extends Mesh {
     constructor(parent, xPosition) {
-        const geometry = new PlaneGeometry(2, 3);
+        const geometry = new PlaneGeometry(3, 7);
         const material = new MeshStandardMaterial({
             color: 0x00ffff,       // Cyan-ish portal color
             emissive: 0x002222,    // Emissive glow
