@@ -71,17 +71,66 @@ function onClickToStart() {
 }
 document.addEventListener('click', onClickToStart);
 
+
+// Variables to store normalized mouse position
+let mouseX = 0, mouseY = 0;
+
+// Event listener to update mouseX, mouseY
+window.addEventListener('mousemove', (event) => {
+    // Normalize mouse coordinates so that the center of the screen = 0,0
+    // mouseX, mouseY will be in [-0.5, 0.5]
+    mouseX = (event.clientX / window.innerWidth) - 0.5;
+    mouseY = (event.clientY / window.innerHeight) - 0.5;
+});
+
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
 
-    // Set the camera to the cube's POV
-    const player = scene.player;
-    camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
-    camera.lookAt(player.position.x + 1, player.position.y, player.position.z);
+    const player = scene.player; // Assuming you have a player object with a position
 
+    // Baseline camera position: slightly behind and above the player
+    // For example, place the camera a few units behind the player on the Z-axis
+    // and a bit above them on the Y-axis.
+    const baseOffsetX = -5;     // Behind player along X
+    const baseOffsetY = 2;      // Above player
+    const baseOffsetZ = 0;      // Centered on Z-axis
+
+    // Maximum parallax offsets, i.e., how much the camera can move based on mouse
+    const maxHorizontalOffset = 2.0; // Max horizontal shift due to mouse
+    const maxVerticalOffset = 1.0;   // Max vertical shift due to mouse
+
+    // Compute final offsets from mouse position
+    const offsetX = baseOffsetX;
+    const offsetY = baseOffsetY - mouseY * maxVerticalOffset;
+    const offsetZ = baseOffsetZ + mouseX * maxHorizontalOffset;
+
+    // Set the camera position relative to the player
+    // For example, if your player is always moving along the x-axis, and facing forward,
+    // you might want the camera behind it. Adjust logic as suits your coordinate system.
+    camera.position.set(
+        player.position.x + offsetX,
+        player.position.y + offsetY,
+        player.position.z + offsetZ
+    );
+
+    // Now adjust the lookAt point:
+    // If your player moves along the x-axis, we can look slightly ahead of the player.
+    // We can also factor in a small angle to see the horizon.
+    // For instance, look slightly above the player's current position.
+    const lookAtAhead = 5; // how far ahead of the player to look
+    const lookAtHeight = player.position.y + 0.5; // a slight lift so we see horizon
+
+    camera.lookAt(
+        player.position.x + lookAtAhead,
+        lookAtHeight,
+        player.position.z
+    );
+
+    // Render and update scene
     renderer.render(scene, camera);
     scene.update && scene.update(timeStamp, audioManager);
+
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
