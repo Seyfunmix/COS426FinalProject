@@ -36,6 +36,33 @@ controls.minDistance = 4;
 controls.maxDistance = 16;
 controls.update();
 
+// Game state
+let gameStarted = false;
+
+// Show a title screen overlay until the player clicks
+const titleOverlay = document.createElement('div');
+titleOverlay.style.position = 'absolute';
+titleOverlay.style.top = '0';
+titleOverlay.style.left = '0';
+titleOverlay.style.width = '100%';
+titleOverlay.style.height = '100%';
+titleOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+titleOverlay.style.display = 'flex';
+titleOverlay.style.alignItems = 'center';
+titleOverlay.style.justifyContent = 'center';
+titleOverlay.style.color = 'white';
+titleOverlay.style.fontSize = '48px';
+titleOverlay.style.zIndex = '999';
+titleOverlay.innerText = 'Click to Start';
+document.body.appendChild(titleOverlay);
+
+function onClickToStart() {
+    gameStarted = true;
+    document.removeEventListener('click', onClickToStart);
+    document.body.removeChild(titleOverlay);
+}
+document.addEventListener('click', onClickToStart);
+
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
@@ -49,7 +76,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     //camera.lookAt(new Vector3(0, 0, 0));
 
     renderer.render(scene, camera);
-    scene.update && scene.update(timeStamp);
+    scene.update && scene.update(timeStamp, gameStarted);
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);

@@ -1,5 +1,7 @@
 import { Mesh, BoxGeometry, MeshStandardMaterial } from 'three';
 
+const initSpeed = 0.15
+
 class Player extends Mesh {
     constructor(parent) {
         // Call parent Mesh() constructor
@@ -13,6 +15,8 @@ class Player extends Mesh {
 
         // Set initial position
         this.position.set(0, 1, 0); // Slightly above the ground
+
+        this.speed = initSpeed; // Initial speed
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
@@ -33,9 +37,18 @@ class Player extends Mesh {
 
     jump() {
         if (this.position.y === 1 && !this.state.isJumping) {
-            this.state.velocityY = 0.2; // Jump strength
+            this.state.velocityY = 0.3; // Jump strength
             this.state.isJumping = true;
         }
+    }
+
+    resetPosition() {
+        this.position.set(0, 0, 0);
+        this.speed = initSpeed;
+    }
+
+    increaseSpeed(amount) {
+        this.speed += amount;
     }
 }
 

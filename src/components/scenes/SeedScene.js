@@ -32,7 +32,7 @@ class SeedScene extends Scene {
         // Add Obstacles (randomly placed along the path)
         const obstacles = [];
         for (let i = 1; i <= 10; i++) {
-            const xPosition = i * 5; // Space obstacles evenly along the path
+            const xPosition = i * 15; // Space obstacles evenly along the path
             const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
             const obstacle = new Obstacle(this, xPosition, zPosition);
             obstacles.push(obstacle);
@@ -52,25 +52,32 @@ class SeedScene extends Scene {
         this.state.updateList.push(object);
     }
 
-    update(timeStamp) {
-        const { rotationSpeed, updateList } = this.state;
+    update(timeStamp, gameStarted) {
+        const { updateList } = this.state;
 
-        // Call update for each object in the updateList
         for (const obj of updateList) {
             obj.update(timeStamp);
         }
 
-        // Move the player forward along the x-axis
-        this.player.position.x += 0.05; // Adjust speed as needed
+        // Only move player if the game has started
+        if (gameStarted) {
+            // Use the player's speed property
+            this.player.position.x += this.player.speed;
 
-        // Check for collisions with obstacles
+            // Example: Gradually increase speed over time
+            // this.player.increaseSpeed(0.00001); // Very small increment per frame
+        }
+
+        // Collision check
         this.obstacles.forEach((obstacle) => {
             if (
-                Math.abs(this.player.position.x - obstacle.position.x) < 0.5 && // Adjust collision radius
-                Math.abs(this.player.position.z - obstacle.position.z) < 0.5
+                Math.abs(this.player.position.x - obstacle.position.x) < 0.5 &&
+                Math.abs(this.player.position.z - obstacle.position.z) < 0.5 &&
+                this.player.position.y - 2 < 0.5
             ) {
-                console.log('Collision detected! Game over!');
-                // Add logic to stop the game or reset the player's position
+                console.log('Collision detected! Resetting player position!');
+                // Reset player position
+                this.player.resetPosition();
             }
         });
     }
