@@ -41,10 +41,10 @@ const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
     // Set the camera to the cube's POV
     const player = scene.player;
-    camera.position.set(player.position.x, player.position.y + 0.5, player.position.z); // Slightly above the cube
-
+    camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
     // Make the camera look in the direction the cube is moving (negative x-axis)
-    camera.lookAt(player.position.x - 1, player.position.y, player.position.z); // Adjust for movement direction
+    //camera.lookAt(player.position.x - 1, player.position.y, player.position.z); // Adjust for movement direction
+
 
     renderer.render(scene, camera);
     scene.update && scene.update(timeStamp);
