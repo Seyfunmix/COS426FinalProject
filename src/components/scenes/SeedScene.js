@@ -4,6 +4,8 @@ import { BasicLights } from 'lights';
 import Player from '../objects/Player/Player';
 import Ground from '../objects/Ground/Ground';
 import Obstacle from '../objects/Obstacle/Obstacle';
+import Portal from '../objects/Portal/Portal';
+
 
 class SeedScene extends Scene {
     constructor() {
@@ -52,6 +54,10 @@ class SeedScene extends Scene {
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+
+        // Add portal at the end of the level (e.g., at x=150)
+        this.portal = new Portal(this, 150);
+        this.add(this.portal);
     }
 
     addToUpdateList(object) {
@@ -112,7 +118,58 @@ class SeedScene extends Scene {
                     this.handleCollision(audioManager);
                 }
             });
+
+            // Collision check with portal
+            if (
+                Math.abs(this.player.position.x - this.portal.position.x) < 1.0 &&
+                Math.abs(this.player.position.z - this.portal.position.z) < 1.0 &&
+                this.player.position.y < 3.0 // Portal is 3 units tall and centered around y=1.5
+            ) {
+                console.log('Player reached the portal!');
+                this.handlePortalCollision();
+            }
         }
+    }
+
+
+    handlePortalCollision() {
+        this.state.paused = true;
+
+        // Show a "Next Level" overlay
+        const nextLevelOverlay = document.createElement('div');
+        nextLevelOverlay.style.position = 'absolute';
+        nextLevelOverlay.style.top = '0';
+        nextLevelOverlay.style.left = '0';
+        nextLevelOverlay.style.width = '100%';
+        nextLevelOverlay.style.height = '100%';
+        nextLevelOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        nextLevelOverlay.style.display = 'flex';
+        nextLevelOverlay.style.alignItems = 'center';
+        nextLevelOverlay.style.justifyContent = 'center';
+        nextLevelOverlay.style.color = 'white';
+        nextLevelOverlay.style.fontSize = '48px';
+        nextLevelOverlay.style.zIndex = '999';
+        nextLevelOverlay.innerHTML = '<div>Level Complete!<br><button id="nextLevelBtn">Continue</button></div>';
+
+        document.body.appendChild(nextLevelOverlay);
+
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+        nextLevelBtn.addEventListener('click', () => {
+            // Cleanup overlay
+            document.body.removeChild(nextLevelOverlay);
+
+            // Proceed to next level logic:
+            // For example, reset player position, move portal further, or load a new scene
+            this.resetForNextLevel();
+            this.state.paused = false;
+        });
+    }
+
+    resetForNextLevel() {
+        // Example of moving the portal and resetting player
+        this.player.resetPosition();
+        this.portal.position.x += 200; // Move the portal further down the track
+        // Potentially generate new obstacles here as well
     }
 
     setGameStarted(value) {
