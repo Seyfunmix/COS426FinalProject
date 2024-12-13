@@ -19,6 +19,7 @@ const renderer = new WebGLRenderer({ antialias: true });
 camera.position.set(6, 3, -10);
 camera.lookAt(new Vector3(0, 0, 0));
 
+
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
 const canvas = renderer.domElement;
@@ -38,6 +39,13 @@ controls.update();
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
+    // Set the camera to the cube's POV
+    const player = scene.player;
+    camera.position.set(player.position.x, player.position.y + 0.5, player.position.z); // Slightly above the cube
+
+    // Make the camera look in the direction the cube is moving (negative x-axis)
+    camera.lookAt(player.position.x - 1, player.position.y, player.position.z); // Adjust for movement direction
+
     renderer.render(scene, camera);
     scene.update && scene.update(timeStamp);
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -50,6 +58,15 @@ const windowResizeHandler = () => {
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
+    
+
+    // Ensure the canvas is resized properly
+    renderer.setPixelRatio(window.devicePixelRatio);
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
+
+// Mouse click controls
+window.addEventListener('mousedown', () => {
+    scene.player.jump();
+});
