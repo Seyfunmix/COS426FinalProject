@@ -31,7 +31,7 @@ camera.lookAt(new Vector3(0, 0, 0));
 
 // Set up AudioManager
 const audioManager = new AudioManager(camera);
-//audioManager.playBackgroundMusic('//testmusic.mp3', 0.5); // Specify the path to your music file
+//audioManager.playBackgroundMusic('//testmusic.mp3', 0.5);
 
 
 

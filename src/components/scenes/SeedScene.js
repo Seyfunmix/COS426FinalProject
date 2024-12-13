@@ -1,5 +1,5 @@
 import * as Dat from 'dat.gui';
-import { Scene, Color } from 'three';
+import { Scene, Color, PointLight, AmbientLight } from 'three';
 import { BasicLights } from 'lights';
 import Player from '../objects/Player/Player';
 import Ground from '../objects/Ground/Ground';
@@ -49,11 +49,15 @@ class SeedScene extends Scene {
         this.obstacles = obstacles; // Store a reference to obstacles for external access
 
         // Add Lights
-        const lights = new BasicLights();
-        this.add(lights);
+        this.ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light for general illumination
+        this.add(this.ambientLight);
+
+        this.pointLight = new PointLight(0xffffff, 1, 100);
+        this.pointLight.position.set(0, 10, 0);
+        this.add(this.pointLight);
 
         // Populate GUI
-        this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        //this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
 
         // Add portal at the end of the level (e.g., at x=150)
         this.portal = new Portal(this, 150);
@@ -129,6 +133,43 @@ class SeedScene extends Scene {
                 this.handlePortalCollision();
             }
         }
+
+        // ----- Add Visual Effects Based on Music -----
+        this.applyAudioEffects(audioManager);
+    }
+
+    applyAudioEffects(audioManager) {
+        // Get frequency data
+        const frequencyData = audioManager.getFrequencyData();
+        const averageFrequency = audioManager.getAverageFrequency();
+
+        // Example: Pulse the PointLight intensity based on low frequencies
+        // Define frequency ranges (these are approximate and can be adjusted)
+        const lowFreq = frequencyData.slice(0, 20); // Low frequencies
+        const highFreq = frequencyData.slice(80, 128); // High frequencies
+
+        // Calculate average low and high frequencies
+        const avgLowFreq = lowFreq.reduce((sum, val) => sum + val, 0) / lowFreq.length;
+        const avgHighFreq = highFreq.reduce((sum, val) => sum + val, 0) / highFreq.length;
+
+        // Normalize values (0 to 1)
+        const normalizedLow = avgLowFreq / 255;
+        const normalizedHigh = avgHighFreq / 255;
+
+        // Adjust PointLight intensity based on low frequencies
+        this.pointLight.intensity = 1 + normalizedLow * 2; // Base intensity + pulse
+
+        // Adjust ambient light color based on high frequencies
+        // For example, shift towards blue on high frequencies
+        const blueShift = normalizedHigh;
+        this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1); // Shift towards blue
+
+        // Optionally, adjust the background color based on frequencies
+        // For example, shift background color hue based on average frequency
+        const hue = (averageFrequency / 255) * 360; // 0 to 360 degrees
+        const saturation = 0.5; // 50%
+        const lightness = 0.1 + (normalizedHigh * 0.4); // Between 10% and 50%
+        this.background.setHSL(hue / 360, saturation, lightness);
     }
 
 
