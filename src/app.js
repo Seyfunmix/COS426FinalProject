@@ -53,25 +53,6 @@ controls.maxDistance = 16;
 controls.update();
 
 
-// Add postprocessing
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
-outlinePass.edgeStrength = 2.5; // Adjust edge thickness
-outlinePass.edgeGlow = 0.5; // Add a subtle glow
-outlinePass.visibleEdgeColor.set(0xffffff); // White edges
-outlinePass.hiddenEdgeColor.set(0x000000); // Black background
-composer.addPass(outlinePass);
-
-// Animation loop
-const animate = () => {
-    controls.update();
-    composer.render(); // Use composer instead of renderer
-    requestAnimationFrame(animate);
-};
-animate();
-
-
 // Game state
 let gameStarted = false;
 
