@@ -14,12 +14,13 @@ class Player extends Mesh {
         };
 
         // Set initial position
-        this.position.set(0, 1, 0); // Slightly above the ground
+        this.position.set(-300, 1, 0); // Start at one end of the ground
 
         this.speed = initSpeed; // Initial speed
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
+        
     }
 
     update() {
@@ -43,8 +44,8 @@ class Player extends Mesh {
     }
 
     resetPosition() {
-        this.position.set(0, 0, 0);
-        this.speed = initSpeed;
+        this.position.set(-300, 1, 0);
+        
     }
 
     increaseSpeed(amount) {

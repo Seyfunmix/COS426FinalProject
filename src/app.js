@@ -9,15 +9,22 @@
 import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
+import { AudioManager } from './AudioManager'; // Import your AudioManager
 
 // Initialize core ThreeJS components
 const scene = new SeedScene();
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
 
+
 // Set up camera
 camera.position.set(6, 3, -10);
 camera.lookAt(new Vector3(0, 0, 0));
+
+// Set up AudioManager
+const audioManager = new AudioManager(camera);
+//audioManager.playBackgroundMusic('//testmusic.mp3', 0.5); // Specify the path to your music file
+
 
 
 // Set up renderer, canvas, and minor CSS adjustments
@@ -58,6 +65,7 @@ document.body.appendChild(titleOverlay);
 
 function onClickToStart() {
     gameStarted = true;
+    scene.setGameStarted(true); // Update SeedScene's state
     document.removeEventListener('click', onClickToStart);
     document.body.removeChild(titleOverlay);
 }
@@ -66,20 +74,19 @@ document.addEventListener('click', onClickToStart);
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
+
     // Set the camera to the cube's POV
     const player = scene.player;
     camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
-    // Make the camera look in the direction the cube is moving (negative x-axis)
-    camera.lookAt(player.position.x + 1, player.position.y, player.position.z); // Adjust for movement direction
-
-    //camera.position.set(6, 3, -10);
-    //camera.lookAt(new Vector3(0, 0, 0));
+    camera.lookAt(player.position.x + 1, player.position.y, player.position.z);
 
     renderer.render(scene, camera);
-    scene.update && scene.update(timeStamp, gameStarted);
+    scene.update && scene.update(timeStamp, audioManager);
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
+
+
 
 // Resize Handler
 const windowResizeHandler = () => {
@@ -99,3 +106,10 @@ window.addEventListener('resize', windowResizeHandler, false);
 window.addEventListener('mousedown', () => {
     scene.player.jump();
 });
+
+
+window.addEventListener('click', () => {
+    audioManager.playBackgroundMusic('testmusic.mp3', 0.5);
+}, { once: true });
+
+

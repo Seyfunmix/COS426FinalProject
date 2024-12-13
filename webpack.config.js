@@ -8,7 +8,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, buildPath),
         filename: '[name].[hash].js',
-        publicPath: `/${pkg.repository}/`,
+        publicPath: '/', // Ensure public paths are served from root
     },
     target: 'web',
     devtool: 'source-map',
@@ -24,7 +24,13 @@ module.exports = {
             },
             {
                 test: /\.(jpe?g|png|gif|svg|tga|gltf|glb|babylon|mtl|pcb|pcd|prwm|obj|mat|mp3|ogg)$/i,
-                use: 'file-loader',
+                use: {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[path][name].[ext]', // Preserve folder structure and original names
+                        context: path.resolve(__dirname, 'src'), // Make paths relative to 'src'
+                    },
+                },
                 exclude: path.resolve(__dirname, './node_modules/'),
             },
             {
@@ -44,4 +50,12 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({ title: pkg.title, favicon: 'src/favicon.ico' }),
     ],
+    devServer: {
+        static: {
+            directory: path.join(__dirname, 'public'), // Serve the `assets` folder
+        },
+        compress: true, // Enable gzip compression
+        port: 8080, // Specify port
+        open: true, // Automatically open the browser
+    },
 };

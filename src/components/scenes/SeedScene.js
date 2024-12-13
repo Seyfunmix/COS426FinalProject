@@ -15,6 +15,7 @@ class SeedScene extends Scene {
             gui: new Dat.GUI(), // Create GUI for scene
             rotationSpeed: 1,
             updateList: [],
+            gameStarted: false, // Track whether the game has started
         };
 
         // Set background to a nice color
@@ -29,10 +30,15 @@ class SeedScene extends Scene {
         this.player = player; // Store a reference to the player for external access
         this.add(player);
 
-        // Add Obstacles (randomly placed along the path)
+        // Add Obstacles (spaced evenly along the ground's length)
         const obstacles = [];
-        for (let i = 1; i <= 10; i++) {
-            const xPosition = i * 15; // Space obstacles evenly along the path
+        const obstacleCount = 10; // Number of obstacles
+        const startX = -140; // Starting position of obstacles
+        const endX = 140; // Ending position of obstacles
+        const obstacleSpacing = (endX - startX) / obstacleCount;
+
+        for (let i = 0; i < obstacleCount; i++) {
+            const xPosition = startX + i * obstacleSpacing; // Evenly space obstacles
             const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
             const obstacle = new Obstacle(this, xPosition, zPosition);
             obstacles.push(obstacle);
@@ -52,34 +58,65 @@ class SeedScene extends Scene {
         this.state.updateList.push(object);
     }
 
-    update(timeStamp, gameStarted) {
-        const { updateList } = this.state;
+    startGame() {
+        this.state.gameStarted = true; // Start the game
+    }
 
-        for (const obj of updateList) {
-            obj.update(timeStamp);
-        }
 
-        // Only move player if the game has started
-        if (gameStarted) {
-            // Use the player's speed property
-            this.player.position.x += this.player.speed;
+    handleCollision(audioManager) {
+        if (!this.state.paused) {
+            this.state.paused = true; // Pause the game
 
-            // Example: Gradually increase speed over time
-            // this.player.increaseSpeed(0.00001); // Very small increment per frame
-        }
+            // Stop the music
+            audioManager.sound.stop();
+            
+            // Play the death sound effect
+            audioManager.playSoundEffect('deathsound.mp3', 1.0);
 
-        // Collision check
-        this.obstacles.forEach((obstacle) => {
-            if (
-                Math.abs(this.player.position.x - obstacle.position.x) < 0.5 &&
-                Math.abs(this.player.position.z - obstacle.position.z) < 0.5 &&
-                this.player.position.y - 2 < 0.5
-            ) {
-                console.log('Collision detected! Resetting player position!');
+            // Pause for 1 second before restarting
+            setTimeout(() => {
                 // Reset player position
                 this.player.resetPosition();
+
+                // Restart the music
+                audioManager.sound.play();
+
+                // Resume the game
+                this.state.paused = false;
+            }, 1000);
+        }
+    }
+
+    update(timeStamp, audioManager) {
+        const { updateList, gameStarted, paused } = this.state;
+
+        // Update all objects in the update list
+        if (!paused) {
+            for (const obj of updateList) {
+                obj.update(timeStamp);
             }
-        });
+
+            // Only move player if the game has started
+            if (gameStarted) {
+                this.player.position.x += 0.5; // Move player forward
+            }
+
+            // Collision check
+            this.obstacles.forEach((obstacle) => {
+                if (
+                    Math.abs(this.player.position.x - obstacle.position.x) < 0.5 &&
+                    Math.abs(this.player.position.z - obstacle.position.z) < 0.5 &&
+                    this.player.position.y - 2 < 0.5
+                ) {
+                    console.log('Collision detected! Pausing game...');
+                    this.handleCollision(audioManager);
+                }
+            });
+        }
+    }
+
+    setGameStarted(value) {
+        this.state.gameStarted = value; // Sync gameStarted state
     }
 }
 
