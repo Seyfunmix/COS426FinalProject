@@ -168,7 +168,7 @@ class SeedScene extends Scene {
     resetForNextLevel() {
         // Example of moving the portal and resetting player
         this.player.resetPosition();
-        this.portal.position.x += 200; // Move the portal further down the track
+        //this.portal.position.x += 200; // Move the portal further down the track
         // Potentially generate new obstacles here as well
     }
 
