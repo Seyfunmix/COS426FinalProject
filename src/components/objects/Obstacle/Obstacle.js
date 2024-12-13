@@ -1,10 +1,10 @@
-import { Mesh, ConeGeometry, MeshStandardMaterial } from 'three';
+import { Mesh, ConeGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, LineBasicMaterial } from 'three';
 
 class Obstacle extends Mesh {
     constructor(parent, x, z) {
         // Create a pyramid-like obstacle using ConeGeometry
         const geometry = new ConeGeometry(0.5, 1, 4); // Radius 0.5, Height 1, 4 sides for a pyramid
-        const material = new MeshStandardMaterial({ color: 0xff0000 }); // Red material
+        const material = new MeshStandardMaterial({ color: 0x000000 }); // Red material
 
         super(geometry, material);
 
@@ -14,6 +14,12 @@ class Obstacle extends Mesh {
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
+        
+        // Add white edges
+        const edges = new EdgesGeometry(geometry); // Generate edges for the geometry
+        const edgeMaterial = new LineBasicMaterial({ color: 0xffffff }); // White edges
+        const edgeLines = new LineSegments(edges, edgeMaterial); // Create the edge lines
+        this.add(edgeLines); // Add the edges as a child of the ground mesh
     }
 
     update() {
