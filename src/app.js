@@ -16,6 +16,7 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { Vector2 } from 'three';
 
 import * as THREE from 'three';
+import InputManager from './InputManager'; // Adjust the path as needed
 
 
 
@@ -33,7 +34,8 @@ camera.lookAt(new Vector3(0, 0, 0));
 const audioManager = new AudioManager(camera);
 
 
-
+// Ensure inputManager is properly initialized
+const inputManager = new InputManager(); // Replace with your actual InputManager implementation
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -96,54 +98,64 @@ window.addEventListener('mousemove', (event) => {
 const onAnimationFrameHandler = (timeStamp) => {
     controls.update();
 
-    const player = scene.player; // Assuming you have a player object with a position
+    const player = scene.player;
 
-    // Baseline camera position: slightly behind and above the player
-    // For example, place the camera a few units behind the player on the Z-axis
-    // and a bit above them on the Y-axis.
-    const baseOffsetX = -5;     // Behind player along X
-    const baseOffsetY = 2;      // Above player
-    const baseOffsetZ = 0;      // Centered on Z-axis
+    // Check player position for camera switch
+    const switchXPosition = 150; // X position to switch to first-person POV
+    const isFirstPerson = player.position.x >= switchXPosition;
 
-    // Maximum parallax offsets, i.e., how much the camera can move based on mouse
-    const maxHorizontalOffset = 2.0; // Max horizontal shift due to mouse
-    const maxVerticalOffset = 1.0;   // Max vertical shift due to mouse
+    // Check if player is in ship mode (x >= 950)
+    const isShipMode = player.position.x >= 950;
 
-    // Compute final offsets from mouse position
-    const offsetX = baseOffsetX;
-    const offsetY = baseOffsetY - mouseY * maxVerticalOffset;
-    const offsetZ = baseOffsetZ + mouseX * maxHorizontalOffset;
+    if (isShipMode) {
+        // Ship mode camera logic
+        const playerPosition = player.position;
+        //camera.position.set(playerPosition.x - 5, playerPosition.y + 2, playerPosition.z + 5); // Dynamic position for ship mode
+        //camera.lookAt(playerPosition); // Focus on the player
+        camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
+        camera.lookAt(player.position.x + 1, player.position.y, player.position.z); // Adjust for movement direction
+    } else if (isFirstPerson) {
+        // First-person POV
+        camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
+        camera.lookAt(player.position.x + 1, player.position.y, player.position.z); // Adjust for movement direction
+    } else {
+        // Default third-person POV
+        const baseOffsetX = -5;     // Behind player along X
+        const baseOffsetY = 2;      // Above player
+        const baseOffsetZ = 0;      // Centered on Z-axis
 
-    // Set the camera position relative to the player
-    // For example, if your player is always moving along the x-axis, and facing forward,
-    // you might want the camera behind it. Adjust logic as suits your coordinate system.
+        const maxHorizontalOffset = 2.0; // Max horizontal shift due to mouse
+        const maxVerticalOffset = 1.0;   // Max vertical shift due to mouse
 
-    camera.position.set(
-        player.position.x + offsetX,
-        player.position.y + offsetY,
-        player.position.z + offsetZ
-    );
+        const offsetX = baseOffsetX;
+        const offsetY = baseOffsetY - mouseY * maxVerticalOffset;
+        const offsetZ = baseOffsetZ + mouseX * maxHorizontalOffset;
 
-    // Now adjust the lookAt point:
-    // If your player moves along the x-axis, we can look slightly ahead of the player.
-    // We can also factor in a small angle to see the horizon.
-    // For instance, look slightly above the player's current position.
-    const lookAtAhead = 5; // how far ahead of the player to look
-    const lookAtHeight = player.position.y + 0.5; // a slight lift so we see horizon
+        camera.position.set(
+            player.position.x + offsetX,
+            player.position.y + offsetY,
+            player.position.z + offsetZ
+        );
 
-    camera.lookAt(
-        player.position.x + lookAtAhead,
-        lookAtHeight,
-        player.position.z
-    );
+        const lookAtAhead = 5; // how far ahead of the player to look
+        const lookAtHeight = player.position.y + 0.5;
+
+        camera.lookAt(
+            player.position.x + lookAtAhead,
+            lookAtHeight,
+            player.position.z
+        );
+    }
 
     // Render and update scene
     renderer.render(scene, camera);
-    scene.update && scene.update(timeStamp, audioManager);
+    scene.update && scene.update(timeStamp, audioManager, inputManager);
 
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
+
+
 
 
 

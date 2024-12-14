@@ -6,76 +6,9 @@ import Obstacle from '../objects/Obstacle/Obstacle';
 import Portal from '../objects/Portal/Portal';
 import Orb from '../objects/Orb/Orb';
 import Platform from '../objects/Platform/Platform';
-import * as THREE from 'three';
+import PowerUp from '../objects/PowerUp/PowerUp';
+import FloatingObstacle from '../objects/FloatingObstacle/FloatingObstacle';
 
-const particleCount = 100;
-
-const vertexShader = `
-varying vec3 v_worldPosition;
-void main() {
-    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-    v_worldPosition = worldPosition.xyz;
-    gl_Position = projectionMatrix * viewMatrix * worldPosition;
-}
-`;
-
-const fragmentShader = `
-uniform float u_time;
-uniform float u_beatIntensity;
-uniform vec3 u_baseColor;
-uniform vec2 u_resolution;
-
-varying vec3 v_worldPosition;
-
-void main() {
-    // Base gradient from Y
-    float yGradient = (v_worldPosition.y * 0.02) + 0.5;
-    yGradient = clamp(yGradient, 0.0, 1.0);
-
-    // Introduce a Z-based gradient
-    // For example, use Z position to slightly tint the color:
-    float zFactor = (v_worldPosition.z * 0.01) + 0.5;
-    zFactor = clamp(zFactor, 0.0, 1.0);
-
-    // Mix dark and bright versions of baseColor for the Y-based gradient
-    vec3 darkColor = u_baseColor * 0.1;
-    vec3 brightColor = u_baseColor;
-
-    vec3 baseGradientColor = mix(darkColor, brightColor, yGradient);
-
-    // Now add subtle variation based on Z:
-    // For instance, make the color slightly richer in the positive Z direction.
-    // Here we blend the baseGradientColor with a tinted version to add interest.
-    vec3 zTint = vec3(
-        baseGradientColor.r * (0.9 + 0.1 * zFactor),
-        baseGradientColor.g * (0.85 + 0.15 * zFactor),
-        baseGradientColor.b * (1.0 - 0.1 * zFactor)
-    );
-
-    // Blend the two colors: when zFactor is high, we get more of the zTint
-    vec3 color = mix(baseGradientColor, zTint, 0.3 * zFactor);
-
-    // Add a time-based oscillation that uses world position:
-    // For example, a subtle wave pattern moving across the scene.
-    // This will slightly modulate brightness over time and along the Z axis.
-    float wave = sin(u_time * 0.5 + v_worldPosition.x * 0.2) * 0.05;
-    //color += wave; // Adds a subtle brightness shift
-
-    // You can also add a slow hue shift by mixing in another sine function:
-    // Another approach is to slightly shift color based on time and x-position
-    // to create horizontal "ripple" patterns.
-    float ripple = sin(u_time * 0.3 + v_worldPosition.y * 0.01) * 0.05;
-    color += ripple;
-
-    // By stacking these sin-based variations, you get a slowly changing background.
-    // Just make sure the variations are small to keep it subtle.
-
-    // On beat, add a white flash. This remains the same.
-    color = mix(color, vec3(1.0), u_beatIntensity);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
 
 class SeedScene extends Scene {
     constructor() {
@@ -102,7 +35,9 @@ class SeedScene extends Scene {
 
         // Add Obstacles 
         const obstacles = [];
+        this.obstacles = obstacles; // Store a reference to obstacles for external access
 
+  
         // Use an arrow function to preserve the `this` context
         const placeObstacle = (x, z) => {
         // Create a new obstacle at the specified position
@@ -128,7 +63,7 @@ const orbs = [];
         // Store a reference to orbs for external access
         this.orbs = orbs;
 
-        this.obstacles = obstacles; // Store a reference to obstacles for external access
+        
 
 
         // Add Platforms
@@ -161,25 +96,25 @@ const orbs = [];
         placeObstacle(-1045, 0); // Place an obstacle
         placeObstacle(-995, 0); // Place an obstacle
         
-        placeOrb(-940, 2.5, 0);
+        placeOrb(-935, 1, 0);
         placeObstacle(-945, 0); // Place an obstacle
         placeObstacle(-935, 0); // Place an obstacle
         placeObstacle(-925, 0); // Place an obstacle
         placeObstacle(-915, 0); // Place an obstacle
         
-        placeOrb(-841, 2.5, 0);
+        placeOrb(-835, 1, 0);
         placeObstacle(-845, 0); // Place an obstacle
         placeObstacle(-835, 0); // Place an obstacle
         placeObstacle(-825, 0); // Place an obstacle
         placeObstacle(-815, 0); // Place an obstacle
         
-        placeOrb(-740, 2.5, 0);
+        placeOrb(-735, 1, 0);
         placeObstacle(-745, 0); // Place an obstacle
         placeObstacle(-735, 0); // Place an obstacle
         placeObstacle(-725, 0); // Place an obstacle
         placeObstacle(-715, 0); // Place an obstacle
         
-        placeOrb(-640, 2.5, 0);
+        placeOrb(-635, 1, 0);
         placeObstacle(-645, 0); // Place an obstacle
         placeObstacle(-635, 0); // Place an obstacle
         placeObstacle(-625, 0); // Place an obstacle
@@ -211,7 +146,7 @@ const orbs = [];
         placeObstacle(-515, 5); // Place an obstacle
 
         // big block of spikes
-        placeOrb(-449, 2.5, 0);
+        placeOrb(-449, 1, 0);
         placeObstacle(-450, 5); // Place an obstacle
         placeObstacle(-450, 4); // Place an obstacle
         placeObstacle(-450, 3); // Place an obstacle
@@ -299,7 +234,7 @@ const orbs = [];
         placeObstacle(-300, 5); // Place an obstacle
 
         // big block of spikes
-        placeOrb(-249, 2.5, 0);
+        placeOrb(-249, 1, 0);
         placeObstacle(-250, 5); // Place an obstacle
         placeObstacle(-250, 4); // Place an obstacle
         placeObstacle(-250, 3); // Place an obstacle
@@ -360,10 +295,286 @@ const orbs = [];
         placeObstacle(-210, -4); // Place an obstacle
         placeObstacle(-210, -5); // Place an obstacle
        
+
+        // random obstacles section. 10 obstacles for every 200 x positions
+        const obstacleCount = 10; // Number of obstacles
+        const startX = -150; // Starting position of obstacles
+        const endX = 150; // Ending position of obstacles
+        const obstacleSpacing = (endX - startX) / obstacleCount;
+
+        for (let i = 0; i < obstacleCount; i++) {
+            const xPosition = startX + i * obstacleSpacing; // Evenly space obstacles
+            const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
+            const obstacle = new Obstacle(this, xPosition, zPosition);
+            obstacles.push(obstacle);
+            this.add(obstacle);
+        }
         
 
-        
+        // Place the power-up in the scene
+        const placePowerUp = (x, y, z) => {
+            const powerUp = new PowerUp(this, x, y, z);
+            this.add(powerUp);
+            this.powerUps.push(powerUp); // Store for update checks
+        };
+
+        this.powerUps = []; // Initialize array to track power-ups
+        placePowerUp(150, 1, 0); // Place power-up at camera switch position
+
+        //same sequence but in new pov
        
+        // Adjusted obstacles and orbs with starting x position 200
+        placeObstacle(200, 0); // Place an obstacle
+        placeObstacle(200, -1); // Place an obstacle
+        placeObstacle(200, -2); // Place an obstacle
+        placeObstacle(200, -3); // Place an obstacle
+        placeObstacle(200, -4); // Place an obstacle
+        placeObstacle(200, -5); // Place an obstacle
+        placeObstacle(200, 1); // Place an obstacle
+        placeObstacle(200, 2); // Place an obstacle
+        placeObstacle(200, 3); // Place an obstacle
+        placeObstacle(200, 4); // Place an obstacle
+        placeObstacle(200, 5); // Place an obstacle
+
+        placeObstacle(250, 0); // Place an obstacle
+        placeObstacle(250, -1); // Place an obstacle
+        placeObstacle(250, -2); // Place an obstacle
+        placeObstacle(250, -3); // Place an obstacle
+        placeObstacle(250, -4); // Place an obstacle
+        placeObstacle(250, -5); // Place an obstacle
+        placeObstacle(250, 1); // Place an obstacle
+        placeObstacle(250, 2); // Place an obstacle
+        placeObstacle(250, 3); // Place an obstacle
+        placeObstacle(250, 4); // Place an obstacle
+        placeObstacle(250, 5); // Place an obstacle
+
+        // Big block of spikes
+        placeOrb(316, 1, 0);
+        placeObstacle(315, 5); // Place an obstacle
+        placeObstacle(315, 4); // Place an obstacle
+        placeObstacle(315, 3); // Place an obstacle
+        placeObstacle(315, 2); // Place an obstacle
+        placeObstacle(315, 1); // Place an obstacle
+        placeObstacle(315, 0); // Place an obstacle
+        placeObstacle(315, -1); // Place an obstacle
+        placeObstacle(315, -2); // Place an obstacle
+        placeObstacle(315, -3); // Place an obstacle
+        placeObstacle(315, -4); // Place an obstacle
+        placeObstacle(315, -5); // Place an obstacle
+
+        placeObstacle(325, 5); // Place an obstacle
+        placeObstacle(325, 4); // Place an obstacle
+        placeObstacle(325, 3); // Place an obstacle
+        placeObstacle(325, 2); // Place an obstacle
+        placeObstacle(325, 1); // Place an obstacle
+        placeObstacle(325, 0); // Place an obstacle
+        placeObstacle(325, -1); // Place an obstacle
+        placeObstacle(325, -2); // Place an obstacle
+        placeObstacle(325, -3); // Place an obstacle
+        placeObstacle(325, -4); // Place an obstacle
+        placeObstacle(325, -5); // Place an obstacle
+
+        placeObstacle(335, 5); // Place an obstacle
+        placeObstacle(335, 4); // Place an obstacle
+        placeObstacle(335, 3); // Place an obstacle
+        placeObstacle(335, 2); // Place an obstacle
+        placeObstacle(335, 1); // Place an obstacle
+        placeObstacle(335, 0); // Place an obstacle
+        placeObstacle(335, -1); // Place an obstacle
+        placeObstacle(335, -2); // Place an obstacle
+        placeObstacle(335, -3); // Place an obstacle
+        placeObstacle(335, -4); // Place an obstacle
+        placeObstacle(335, -5); // Place an obstacle
+
+        placeObstacle(345, 5); // Place an obstacle
+        placeObstacle(345, 4); // Place an obstacle
+        placeObstacle(345, 3); // Place an obstacle
+        placeObstacle(345, 2); // Place an obstacle
+        placeObstacle(345, 1); // Place an obstacle
+        placeObstacle(345, 0); // Place an obstacle
+        placeObstacle(345, -1); // Place an obstacle
+        placeObstacle(345, -2); // Place an obstacle
+        placeObstacle(345, -3); // Place an obstacle
+        placeObstacle(345, -4); // Place an obstacle
+        placeObstacle(345, -5); // Place an obstacle
+
+        placeObstacle(405, 0); // Place an obstacle
+        placeObstacle(405, -1); // Place an obstacle
+        placeObstacle(405, -2); // Place an obstacle
+        placeObstacle(405, -3); // Place an obstacle
+        placeObstacle(405, -4); // Place an obstacle
+        placeObstacle(405, -5); // Place an obstacle
+        placeObstacle(405, 1); // Place an obstacle
+        placeObstacle(405, 2); // Place an obstacle
+        placeObstacle(405, 3); // Place an obstacle
+        placeObstacle(405, 4); // Place an obstacle
+        placeObstacle(405, 5); // Place an obstacle
+
+        placeObstacle(455, 0); // Place an obstacle
+        placeObstacle(455, -1); // Place an obstacle
+        placeObstacle(455, -2); // Place an obstacle
+        placeObstacle(455, -3); // Place an obstacle
+        placeObstacle(455, -4); // Place an obstacle
+        placeObstacle(455, -5); // Place an obstacle
+        placeObstacle(455, 1); // Place an obstacle
+        placeObstacle(455, 2); // Place an obstacle
+        placeObstacle(455, 3); // Place an obstacle
+        placeObstacle(455, 4); // Place an obstacle
+        placeObstacle(455, 5); // Place an obstacle
+
+        // Big block of spikes
+        placeOrb(504, 1, 0);
+        placeObstacle(505, 5); // Place an obstacle
+        placeObstacle(505, 4); // Place an obstacle
+        placeObstacle(505, 3); // Place an obstacle
+        placeObstacle(505, 2); // Place an obstacle
+        placeObstacle(505, 1); // Place an obstacle
+        placeObstacle(505, 0); // Place an obstacle
+        placeObstacle(505, -1); // Place an obstacle
+        placeObstacle(505, -2); // Place an obstacle
+        placeObstacle(505, -3); // Place an obstacle
+        placeObstacle(505, -4); // Place an obstacle
+        placeObstacle(505, -5); // Place an obstacle
+
+        placeObstacle(515, 5); // Place an obstacle
+        placeObstacle(515, 4); // Place an obstacle
+        placeObstacle(515, 3); // Place an obstacle
+        placeObstacle(515, 2); // Place an obstacle
+        placeObstacle(515, 1); // Place an obstacle
+        placeObstacle(515, 0); // Place an obstacle
+        placeObstacle(515, -1); // Place an obstacle
+        placeObstacle(515, -2); // Place an obstacle
+        placeObstacle(515, -3); // Place an obstacle
+        placeObstacle(515, -4); // Place an obstacle
+        placeObstacle(515, -5); // Place an obstacle
+
+        placeObstacle(525, 5); // Place an obstacle
+        placeObstacle(525, 4); // Place an obstacle
+        placeObstacle(525, 3); // Place an obstacle
+        placeObstacle(525, 2); // Place an obstacle
+        placeObstacle(525, 1); // Place an obstacle
+        placeObstacle(525, 0); // Place an obstacle
+        placeObstacle(525, -1); // Place an obstacle
+        placeObstacle(525, -2); // Place an obstacle
+        placeObstacle(525, -3); // Place an obstacle
+        placeObstacle(525, -4); // Place an obstacle
+        placeObstacle(525, -5); // Place an obstacle
+
+        placeObstacle(535, 5); // Place an obstacle
+        placeObstacle(535, 4); // Place an obstacle
+        placeObstacle(535, 3); // Place an obstacle
+        placeObstacle(535, 2); // Place an obstacle
+        placeObstacle(535, 1); // Place an obstacle
+        placeObstacle(535, 0); // Place an obstacle
+        placeObstacle(535, -1); // Place an obstacle
+        placeObstacle(535, -2); // Place an obstacle
+        placeObstacle(535, -3); // Place an obstacle
+        placeObstacle(535, -4); // Place an obstacle
+        placeObstacle(535, -5); // Place an obstacle
+
+
+        // random obstacles section 2
+        const obstacleCount2 = 7
+        const startX2 = 600; // Starting position of obstacles
+        const endX2 = 800; // Ending position of obstacles
+        const obstacleSpacing2 = (endX2 - startX2) / obstacleCount;
+
+        for (let i = 0; i < obstacleCount2; i++) {
+            const xPosition = startX2 + i * obstacleSpacing2; // Evenly space obstacles
+            const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
+            const obstacle = new Obstacle(this, xPosition, zPosition);
+            obstacles.push(obstacle);
+            this.add(obstacle);
+        }
+        
+       // last section before ship
+       placeObstacle(810, 0); // Place an obstacle
+       placeObstacle(810, -1); // Place an obstacle
+       placeObstacle(810, -2); // Place an obstacle
+       placeObstacle(810, -3); // Place an obstacle
+       placeObstacle(810, -4); // Place an obstacle
+       placeObstacle(810, -5); // Place an obstacle
+       placeObstacle(810, 1); // Place an obstacle
+       placeObstacle(810, 2); // Place an obstacle
+       placeObstacle(810, 3); // Place an obstacle
+       placeObstacle(810, 4); // Place an obstacle
+       placeObstacle(810, 5); // Place an obstacle
+       
+       placeObstacle(860, 0); // Place an obstacle
+       placeObstacle(860, -1); // Place an obstacle
+       placeObstacle(860, -2); // Place an obstacle
+       placeObstacle(860, -3); // Place an obstacle
+       placeObstacle(860, -4); // Place an obstacle
+       placeObstacle(860, -5); // Place an obstacle
+       placeObstacle(860, 1); // Place an obstacle
+       placeObstacle(860, 2); // Place an obstacle
+       placeObstacle(860, 3); // Place an obstacle
+       placeObstacle(860, 4); // Place an obstacle
+       placeObstacle(860, 5); // Place an obstacle
+       
+       // Big block of spikes
+       placeOrb(901, 1, 0);
+       placeObstacle(900, 5); // Place an obstacle
+       placeObstacle(900, 4); // Place an obstacle
+       placeObstacle(900, 3); // Place an obstacle
+       placeObstacle(900, 2); // Place an obstacle
+       placeObstacle(900, 1); // Place an obstacle
+       placeObstacle(900, 0); // Place an obstacle
+       placeObstacle(900, -1); // Place an obstacle
+       placeObstacle(900, -2); // Place an obstacle
+       placeObstacle(900, -3); // Place an obstacle
+       placeObstacle(900, -4); // Place an obstacle
+       placeObstacle(900, -5); // Place an obstacle
+       
+       placeObstacle(910, 5); // Place an obstacle
+       placeObstacle(910, 4); // Place an obstacle
+       placeObstacle(910, 3); // Place an obstacle
+       placeObstacle(910, 2); // Place an obstacle
+       placeObstacle(910, 1); // Place an obstacle
+       placeObstacle(910, 0); // Place an obstacle
+       placeObstacle(910, -1); // Place an obstacle
+       placeObstacle(910, -2); // Place an obstacle
+       placeObstacle(910, -3); // Place an obstacle
+       placeObstacle(910, -4); // Place an obstacle
+       placeObstacle(910, -5); // Place an obstacle
+       
+       placeObstacle(920, 5); // Place an obstacle
+       placeObstacle(920, 4); // Place an obstacle
+       placeObstacle(920, 3); // Place an obstacle
+       placeObstacle(920, 2); // Place an obstacle
+       placeObstacle(920, 1); // Place an obstacle
+       placeObstacle(920, 0); // Place an obstacle
+       placeObstacle(920, -1); // Place an obstacle
+       placeObstacle(920, -2); // Place an obstacle
+       placeObstacle(920, -3); // Place an obstacle
+       placeObstacle(920, -4); // Place an obstacle
+       placeObstacle(920, -5); // Place an obstacle
+       
+       placeObstacle(930, 5); // Place an obstacle
+       placeObstacle(930, 4); // Place an obstacle
+       placeObstacle(930, 3); // Place an obstacle
+       placeObstacle(930, 2); // Place an obstacle
+       placeObstacle(930, 1); // Place an obstacle
+       placeObstacle(930, 0); // Place an obstacle
+       placeObstacle(930, -1); // Place an obstacle
+       placeObstacle(930, -2); // Place an obstacle
+       placeObstacle(930, -3); // Place an obstacle
+       placeObstacle(930, -4); // Place an obstacle
+       placeObstacle(930, -5); // Place an obstacle
+
+        const placeFloatingObstacle = (x, y, z) => {
+            const obstacle = new FloatingObstacle(this, x, y, z);
+            this.add(obstacle);
+        };
+    
+        // Add floating obstacles in ship mode area
+        placeFloatingObstacle(960, 3, 0);
+        placeFloatingObstacle(970, 2, 0);
+        placeFloatingObstacle(980, 4, 0);
+        placeFloatingObstacle(990, 1, 0);
+        placeFloatingObstacle(1000, 5, 0);
+       
+
 
 
         // Add Lights
@@ -528,10 +739,13 @@ const orbs = [];
         }
     }
 
-    update(timeStamp, audioManager) {
+    update(timeStamp, audioManager, inputManager) {
         const { updateList, gameStarted, paused } = this.state;
 
         if (!paused) {
+             // Determine if ship mode is active
+            const isShipMode = this.player.position.x >= 950;
+
             // Update all objects in the update list
             for (const obj of updateList) {
                 if (obj instanceof Orb) {
@@ -539,16 +753,28 @@ const orbs = [];
                     obj.update(this.player);
                 } else if (obj instanceof Player) {
                     // Pass platforms to the player's update method for collision detection
-                    obj.update(this.platforms);
+                    obj.update(this.platforms, isShipMode, inputManager);
                 } else {
                     obj.update(timeStamp);
                 }
             }
 
+  
+
             // Only move player if the game has started
             if (gameStarted) {
                 this.player.position.x += 0.5; // Move player forward
             }
+
+                   // Example: Additional logic for other game interactions
+            // Handle collision checks or specific triggers
+            this.powerUps.forEach(powerUp => {
+                powerUp.update(this.player, () => {
+                    // For example, trigger a power-up effect
+                    console.log("Power-up effect activated!");
+                });
+            });
+
 
             // Collision check
             this.obstacles.forEach((obstacle) => {
