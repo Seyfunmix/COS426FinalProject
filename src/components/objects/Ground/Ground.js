@@ -3,7 +3,7 @@ import { Mesh, PlaneGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments,
 class Ground extends Mesh {
   constructor() {
     // Create the ground geometry and material
-    const geometry = new PlaneGeometry(6000, 10);
+    const geometry = new PlaneGeometry(3550, 10);
     const material = new MeshStandardMaterial({
       color: 0x000000, // Black faces
     });

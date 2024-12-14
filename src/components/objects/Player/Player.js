@@ -31,7 +31,7 @@ import {
       };
   
       // Set initial position
-      this.position.set(-3000, 1, 0); // Start at one end of the ground
+      this.position.set(-1775, 1, 0); // Start at one end of the ground
   
       this.speed = initSpeed; // Initial speed
   

@@ -62,43 +62,44 @@ const orbs = [];
         this.orbs = orbs;
 
         this.obstacles = obstacles; // Store a reference to obstacles for external access
-        placeObstacle(-2870, 0); // Place an obstacle
-        placeObstacle(-2770, 0); // Place an obstacle
-        placeObstacle(-2670, 0); // Place an obstacle
-
-        placeObstacle(-2570, 0); // Place an obstacle
-        placeObstacle(-2520, 0); // Place an obstacle
-        placeObstacle(-2470, 0); // Place an obstacle
-        placeObstacle(-2420, 0); // Place an obstacle
-
-        placeObstacle(-2370, 0); // Place an obstacle
-        placeObstacle(-2320, 0); // Place an obstacle
-        placeObstacle(-2270, 0); // Place an obstacle
-        placeObstacle(-2220, 0); // Place an obstacle
-
-        placeOrb(-2165, 2.5, 0);
-        placeObstacle(-2170, 0); // Place an obstacle
-        placeObstacle(-2160, 0); // Place an obstacle
-        placeObstacle(-2150, 0); // Place an obstacle
-        placeObstacle(-2140, 0); // Place an obstacle
-
-        placeOrb(-2066, 2.5, 0);
-        placeObstacle(-2070, 0); // Place an obstacle
-        placeObstacle(-2060, 0); // Place an obstacle
-        placeObstacle(-2050, 0); // Place an obstacle
-        placeObstacle(-2040, 0); // Place an obstacle
-
-        placeOrb(-1965, 2.5, 0);
-        placeObstacle(-1970, 0); // Place an obstacle
-        placeObstacle(-1960, 0); // Place an obstacle
-        placeObstacle(-1950, 0); // Place an obstacle
-        placeObstacle(-1940, 0); // Place an obstacle
-
-        placeOrb(-1865, 2.5, 0);
-        placeObstacle(-1870, 0); // Place an obstacle
-        placeObstacle(-1860, 0); // Place an obstacle
-        placeObstacle(-1850, 0); // Place an obstacle
-        placeObstacle(-1840, 0); // Place an obstacle
+        placeObstacle(-1645, 0); // Place an obstacle
+        placeObstacle(-1545, 0); // Place an obstacle
+        placeObstacle(-1445, 0); // Place an obstacle
+        
+        placeObstacle(-1345, 0); // Place an obstacle
+        placeObstacle(-1295, 0); // Place an obstacle
+        placeObstacle(-1245, 0); // Place an obstacle
+        placeObstacle(-1195, 0); // Place an obstacle
+        
+        placeObstacle(-1145, 0); // Place an obstacle
+        placeObstacle(-1095, 0); // Place an obstacle
+        placeObstacle(-1045, 0); // Place an obstacle
+        placeObstacle(-995, 0); // Place an obstacle
+        
+        placeOrb(-940, 2.5, 0);
+        placeObstacle(-945, 0); // Place an obstacle
+        placeObstacle(-935, 0); // Place an obstacle
+        placeObstacle(-925, 0); // Place an obstacle
+        placeObstacle(-915, 0); // Place an obstacle
+        
+        placeOrb(-841, 2.5, 0);
+        placeObstacle(-845, 0); // Place an obstacle
+        placeObstacle(-835, 0); // Place an obstacle
+        placeObstacle(-825, 0); // Place an obstacle
+        placeObstacle(-815, 0); // Place an obstacle
+        
+        placeOrb(-740, 2.5, 0);
+        placeObstacle(-745, 0); // Place an obstacle
+        placeObstacle(-735, 0); // Place an obstacle
+        placeObstacle(-725, 0); // Place an obstacle
+        placeObstacle(-715, 0); // Place an obstacle
+        
+        placeOrb(-640, 2.5, 0);
+        placeObstacle(-645, 0); // Place an obstacle
+        placeObstacle(-635, 0); // Place an obstacle
+        placeObstacle(-625, 0); // Place an obstacle
+        placeObstacle(-615, 0); // Place an obstacle
+        
 
         
        
@@ -115,8 +116,8 @@ const orbs = [];
         // Populate GUI
         //this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
 
-        // Add portal at the end of the level (e.g., at x=150)
-        this.portal = new Portal(this, 3000);
+        // Add portal at the end of the level
+        this.portal = new Portal(this, 1775);
         this.add(this.portal);
 
   

@@ -19,7 +19,7 @@ class AudioManager {
       (buffer) => {
         console.log('Audio loaded successfully');
         this.sound.setBuffer(buffer);
-        this.sound.setLoop(true);
+        this.sound.setLoop(false);
         this.sound.setVolume(volume);
         this.sound.play();
       },
