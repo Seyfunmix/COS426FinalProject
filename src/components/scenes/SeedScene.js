@@ -4,6 +4,7 @@ import Player from '../objects/Player/Player';
 import Ground from '../objects/Ground/Ground';
 import Obstacle from '../objects/Obstacle/Obstacle';
 import Portal from '../objects/Portal/Portal';
+import Orb from '../objects/Orb/Orb';
 import * as THREE from 'three';
 
 const particleCount = 100;
@@ -98,8 +99,80 @@ class SeedScene extends Scene {
         this.player = player;
         this.add(player);
 
-        // Add lights
-        this.ambientLight = new AmbientLight(0xffffff, 0.5);
+        // Add Obstacles 
+        const obstacles = [];
+
+        // Use an arrow function to preserve the `this` context
+        const placeObstacle = (x, z) => {
+        // Create a new obstacle at the specified position
+        const obstacle = new Obstacle(this, x, z);
+
+        // Add the obstacle to the scene
+        obstacles.push(obstacle);
+        this.add(obstacle);
+};
+
+const orbs = [];
+
+        // Place an orb function
+        const placeOrb = (x, y, z) => {
+            // Create a new orb at the specified position
+            const orb = new Orb(this, x, y, z);
+
+            // Add the orb to the scene
+            orbs.push(orb);
+            this.add(orb);
+        };
+
+        // Store a reference to orbs for external access
+        this.orbs = orbs;
+
+        this.obstacles = obstacles; // Store a reference to obstacles for external access
+        placeObstacle(-1645, 0); // Place an obstacle
+        placeObstacle(-1545, 0); // Place an obstacle
+        placeObstacle(-1445, 0); // Place an obstacle
+        
+        placeObstacle(-1345, 0); // Place an obstacle
+        placeObstacle(-1295, 0); // Place an obstacle
+        placeObstacle(-1245, 0); // Place an obstacle
+        placeObstacle(-1195, 0); // Place an obstacle
+        
+        placeObstacle(-1145, 0); // Place an obstacle
+        placeObstacle(-1095, 0); // Place an obstacle
+        placeObstacle(-1045, 0); // Place an obstacle
+        placeObstacle(-995, 0); // Place an obstacle
+        
+        placeOrb(-940, 2.5, 0);
+        placeObstacle(-945, 0); // Place an obstacle
+        placeObstacle(-935, 0); // Place an obstacle
+        placeObstacle(-925, 0); // Place an obstacle
+        placeObstacle(-915, 0); // Place an obstacle
+        
+        placeOrb(-841, 2.5, 0);
+        placeObstacle(-845, 0); // Place an obstacle
+        placeObstacle(-835, 0); // Place an obstacle
+        placeObstacle(-825, 0); // Place an obstacle
+        placeObstacle(-815, 0); // Place an obstacle
+        
+        placeOrb(-740, 2.5, 0);
+        placeObstacle(-745, 0); // Place an obstacle
+        placeObstacle(-735, 0); // Place an obstacle
+        placeObstacle(-725, 0); // Place an obstacle
+        placeObstacle(-715, 0); // Place an obstacle
+        
+        placeOrb(-640, 2.5, 0);
+        placeObstacle(-645, 0); // Place an obstacle
+        placeObstacle(-635, 0); // Place an obstacle
+        placeObstacle(-625, 0); // Place an obstacle
+        placeObstacle(-615, 0); // Place an obstacle
+        
+
+        
+       
+
+
+        // Add Lights
+        this.ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light for general illumination
         this.add(this.ambientLight);
 
         // Create two SpotLights to act like stage lights
@@ -143,23 +216,12 @@ class SeedScene extends Scene {
 
         // Add portal
         this.portal = new Portal(this, 150);
+        // Populate GUI
+        //this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+
+        // Add portal at the end of the level
+        this.portal = new Portal(this, 1775);
         this.add(this.portal);
-
-        // Add obstacles
-        this.obstacles = [];
-        // Create new obstacles
-        const newObstacleCount = 5;
-        const startX = this.portal.position.x - 400;
-        const endX = this.portal.position.x;
-        const obstacleSpacing = (endX - startX) / newObstacleCount;
-
-        for (let i = 0; i < newObstacleCount; i++) {
-            const xPosition = startX + i * obstacleSpacing;
-            const zPosition = Math.random() * 4 - 2;
-            const obstacle = new Obstacle(this, xPosition, zPosition);
-            this.obstacles.push(obstacle);
-            this.add(obstacle);
-        }
 
         // Create a large sphere or a sky dome
         const geometry = new THREE.SphereGeometry(1200, 64, 64);
@@ -193,6 +255,9 @@ class SeedScene extends Scene {
         this.hue = 0;
         this.saturation = 0.5;
         this.lightness = 0;
+
+  
+        
     }
 
     addToUpdateList(object) {
@@ -268,7 +333,88 @@ class SeedScene extends Scene {
         }
     }
 
-    handlePortalCollision() {
+    update(timeStamp, audioManager) {
+        const { updateList, gameStarted, paused } = this.state;
+
+        if (!paused) {
+            // Update all objects in the update list
+            for (const obj of updateList) {
+                if (obj instanceof Orb) {
+                    // Pass the player to the orb's update method
+                    obj.update(this.player);
+                } else {
+                    obj.update(timeStamp);
+                }
+            }
+
+            // Only move player if the game has started
+            if (gameStarted) {
+                this.player.position.x += 0.5; // Move player forward
+            }
+
+            // Collision check
+            this.obstacles.forEach((obstacle) => {
+                if (
+                    Math.abs(this.player.position.x - obstacle.position.x) < 0.5 &&
+                    Math.abs(this.player.position.z - obstacle.position.z) < 0.5 &&
+                    this.player.position.y - 2 < 0.5
+                ) {
+                    console.log('Collision detected! Pausing game...');
+                    this.handleCollision(audioManager);
+                }
+            });
+
+            // Collision check with portal
+            if (
+                Math.abs(this.player.position.x - this.portal.position.x) < 1.0 &&
+                Math.abs(this.player.position.z - this.portal.position.z) < 1.0 &&
+                this.player.position.y < 3.0 // Portal is 3 units tall and centered around y=1.5
+            ) {
+                console.log('Player reached the portal!');
+                this.handlePortalCollision(audioManager);
+            }
+        }
+
+        // ----- Add Visual Effects Based on Music -----
+        this.applyAudioEffects(audioManager);
+    }
+
+    applyAudioEffects(audioManager) {
+        // Get frequency data
+        const frequencyData = audioManager.getFrequencyData();
+        const averageFrequency = audioManager.getAverageFrequency();
+
+        // Example: Pulse the PointLight intensity based on low frequencies
+        // Define frequency ranges (these are approximate and can be adjusted)
+        const lowFreq = frequencyData.slice(0, 20); // Low frequencies
+        const highFreq = frequencyData.slice(80, 128); // High frequencies
+
+        // Calculate average low and high frequencies
+        const avgLowFreq = lowFreq.reduce((sum, val) => sum + val, 0) / lowFreq.length;
+        const avgHighFreq = highFreq.reduce((sum, val) => sum + val, 0) / highFreq.length;
+
+        // Normalize values (0 to 1)
+        const normalizedLow = avgLowFreq / 255;
+        const normalizedHigh = avgHighFreq / 255;
+
+        // Adjust PointLight intensity based on low frequencies
+        this.pointLight.intensity = 1 + normalizedLow * 2; // Base intensity + pulse
+
+        // Adjust ambient light color based on high frequencies
+        // For example, shift towards blue on high frequencies
+        const blueShift = normalizedHigh;
+        this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1); // Shift towards blue
+
+        // Optionally, adjust the background color based on frequencies
+        // For example, shift background color hue based on average frequency
+        const hue = (averageFrequency / 255) * 360; // 0 to 360 degrees
+        const saturation = 0.5; // 50%
+        const lightness = 0.1 + (normalizedHigh * 0.4); // Between 10% and 50%
+        this.background.setHSL(hue / 360, saturation, lightness);
+    }
+
+
+    handlePortalCollision(audioManager) {
         this.state.paused = true;
 
         const nextLevelOverlay = document.createElement('div');
@@ -291,31 +437,22 @@ class SeedScene extends Scene {
         const nextLevelBtn = document.getElementById('nextLevelBtn');
         nextLevelBtn.addEventListener('click', () => {
             document.body.removeChild(nextLevelOverlay);
-            this.resetForNextLevel();
+            this.player.resetPosition();
+            // Stop the music
+            audioManager.sound.stop();
             this.state.paused = false;
+            // Restart the music
+            audioManager.sound.play();
         });
     }
 
     resetForNextLevel() {
-        // Remove old obstacles
-        this.obstacles.forEach((obstacle) => {
-            this.remove(obstacle);
-        });
-        this.obstacles = [];
+        // Stop the music
+        audioManager.sound.stop();
+        this.state.paused = false;
+        // Restart the music
+        audioManager.sound.play();
 
-        // Create new obstacles
-        const newObstacleCount = 5;
-        const startX = this.portal.position.x - 400;
-        const endX = this.portal.position.x;
-        const obstacleSpacing = (endX - startX) / newObstacleCount;
-
-        for (let i = 0; i < newObstacleCount; i++) {
-            const xPosition = startX + i * obstacleSpacing;
-            const zPosition = Math.random() * 4 - 2;
-            const obstacle = new Obstacle(this, xPosition, zPosition);
-            this.obstacles.push(obstacle);
-            this.add(obstacle);
-        }
 
         this.player.resetPosition();
         this.player.increaseSpeed(0.1);

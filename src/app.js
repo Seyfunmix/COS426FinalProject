@@ -31,7 +31,6 @@ camera.lookAt(new Vector3(0, 0, 0));
 
 // Set up AudioManager
 const audioManager = new AudioManager(camera);
-//audioManager.playBackgroundMusic('//testmusic.mp3', 0.5);
 
 
 
@@ -118,6 +117,7 @@ const onAnimationFrameHandler = (timeStamp) => {
     // Set the camera position relative to the player
     // For example, if your player is always moving along the x-axis, and facing forward,
     // you might want the camera behind it. Adjust logic as suits your coordinate system.
+
     camera.position.set(
         player.position.x + offsetX,
         player.position.y + offsetY,
@@ -168,7 +168,7 @@ window.addEventListener('mousedown', () => {
 
 
 window.addEventListener('click', () => {
-    audioManager.playBackgroundMusic('testmusic.mp3', 0.5);
+    audioManager.playBackgroundMusic('finalmusic.mp3', 0.5);
 }, { once: true });
 
 
