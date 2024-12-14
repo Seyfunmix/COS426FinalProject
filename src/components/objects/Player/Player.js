@@ -7,7 +7,7 @@ import {
     LineBasicMaterial,
   } from 'three';
   
-  const initSpeed = 0.15;
+  const initSpeed = 0.5;
   
   class Player extends Mesh {
     constructor(parent) {
@@ -61,6 +61,10 @@ import {
   
     resetPosition() {
       this.position.set(-300, 1, 0);
+    }
+
+    resetSpeed() {
+      this.speed = initSpeed;
     }
   
     increaseSpeed(amount) {

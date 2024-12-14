@@ -8,6 +8,73 @@ import * as THREE from 'three';
 
 const particleCount = 100;
 
+const vertexShader = `
+varying vec3 v_worldPosition;
+void main() {
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    v_worldPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+}
+`;
+
+const fragmentShader = `
+uniform float u_time;
+uniform float u_beatIntensity;
+uniform vec3 u_baseColor;
+uniform vec2 u_resolution;
+
+varying vec3 v_worldPosition;
+
+void main() {
+    // Base gradient from Y
+    float yGradient = (v_worldPosition.y * 0.02) + 0.5;
+    yGradient = clamp(yGradient, 0.0, 1.0);
+
+    // Introduce a Z-based gradient
+    // For example, use Z position to slightly tint the color:
+    float zFactor = (v_worldPosition.z * 0.01) + 0.5;
+    zFactor = clamp(zFactor, 0.0, 1.0);
+
+    // Mix dark and bright versions of baseColor for the Y-based gradient
+    vec3 darkColor = u_baseColor * 0.1;
+    vec3 brightColor = u_baseColor;
+
+    vec3 baseGradientColor = mix(darkColor, brightColor, yGradient);
+
+    // Now add subtle variation based on Z:
+    // For instance, make the color slightly richer in the positive Z direction.
+    // Here we blend the baseGradientColor with a tinted version to add interest.
+    vec3 zTint = vec3(
+        baseGradientColor.r * (0.9 + 0.1 * zFactor),
+        baseGradientColor.g * (0.85 + 0.15 * zFactor),
+        baseGradientColor.b * (1.0 - 0.1 * zFactor)
+    );
+
+    // Blend the two colors: when zFactor is high, we get more of the zTint
+    vec3 color = mix(baseGradientColor, zTint, 0.3 * zFactor);
+
+    // Add a time-based oscillation that uses world position:
+    // For example, a subtle wave pattern moving across the scene.
+    // This will slightly modulate brightness over time and along the Z axis.
+    float wave = sin(u_time * 0.5 + v_worldPosition.x * 0.2) * 0.05;
+    //color += wave; // Adds a subtle brightness shift
+
+    // You can also add a slow hue shift by mixing in another sine function:
+    // Another approach is to slightly shift color based on time and x-position
+    // to create horizontal "ripple" patterns.
+    float ripple = sin(u_time * 0.3 + v_worldPosition.y * 0.01) * 0.05;
+    color += ripple;
+
+    // By stacking these sin-based variations, you get a slowly changing background.
+    // Just make sure the variations are small to keep it subtle.
+
+    // On beat, add a white flash. This remains the same.
+    color = mix(color, vec3(1.0), u_beatIntensity);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+
 class SeedScene extends Scene {
     constructor() {
         super();
@@ -31,13 +98,62 @@ class SeedScene extends Scene {
         this.player = player;
         this.add(player);
 
+        // Add lights
+        this.ambientLight = new AmbientLight(0xffffff, 0.5);
+        this.add(this.ambientLight);
+
+        // Create two SpotLights to act like stage lights
+        this.leftLight = new THREE.SpotLight(0xff0000, 0.5);
+        this.rightLight = new THREE.SpotLight(0x0000ff, 0.5);
+
+        // Set initial positions
+        this.leftLight.position.set(
+            this.player.position.x - 5,
+            this.player.position.y + 10,
+            this.player.position.z - 5
+        );
+        this.rightLight.position.set(
+            this.player.position.x + 5,
+            this.player.position.y + 10,
+            this.player.position.z - 5
+        );
+
+        // Adjust the spotlight parameters for a more dramatic look
+        this.leftLight.angle = Math.PI / 6; // narrower beam
+        this.leftLight.penumbra = 0.3;
+        this.rightLight.angle = Math.PI / 6;
+        this.rightLight.penumbra = 0.3;
+
+
+        // also set where they point (target)
+        const leftTarget = new THREE.Object3D();
+        leftTarget.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
+        this.add(leftTarget);
+        this.leftLight.target = leftTarget;
+
+        const rightTarget = new THREE.Object3D();
+        rightTarget.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
+        this.add(rightTarget);
+        this.rightLight.target = rightTarget;
+
+        // Add them to the scene
+        this.add(this.leftLight);
+        this.add(this.rightLight);
+
+
+        // Add portal
+        this.portal = new Portal(this, 150);
+        this.add(this.portal);
+
         // Add obstacles
         this.obstacles = [];
-        const obstacleCount = 10;
-        const startX = -140;
-        const endX = 140;
-        const obstacleSpacing = (endX - startX) / obstacleCount;
-        for (let i = 0; i < obstacleCount; i++) {
+        // Create new obstacles
+        const newObstacleCount = 5;
+        const startX = this.portal.position.x - 400;
+        const endX = this.portal.position.x;
+        const obstacleSpacing = (endX - startX) / newObstacleCount;
+
+        for (let i = 0; i < newObstacleCount; i++) {
             const xPosition = startX + i * obstacleSpacing;
             const zPosition = Math.random() * 4 - 2;
             const obstacle = new Obstacle(this, xPosition, zPosition);
@@ -45,26 +161,38 @@ class SeedScene extends Scene {
             this.add(obstacle);
         }
 
-        // Add lights
-        this.ambientLight = new AmbientLight(0xffffff, 0.5);
-        this.add(this.ambientLight);
+        // Create a large sphere or a sky dome
+        const geometry = new THREE.SphereGeometry(1200, 64, 64);
+        //geometry.scale(-1, 1, 1); // Invert the sphere so we see the inside
 
-        this.pointLight = new PointLight(0xffffff, 1, 100);
-        this.pointLight.position.set(0, 10, 0);
-        this.add(this.pointLight);
+        this.bgMaterial = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: {
+                u_time: { value: 0.0 },
+                u_beatIntensity: { value: 0.0 },
+                u_baseColor: { value: new THREE.Color(0.0, 0.0, 0.0) }, // start dark
+                u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            },
+            side: THREE.BackSide // render inside of sphere
+        });
 
-        // Add portal
-        this.portal = new Portal(this, 150);
-        this.add(this.portal);
+        this.backgroundSphere = new THREE.Mesh(geometry, this.bgMaterial);
+        this.add(this.backgroundSphere);
 
         // Initialize particles
         this.initParticles();
 
         // Variables to help detect beats
         this.previousLowFreq = 0;
-        this.beatThreshold = 0.7; // Adjust as needed
+        this.beatThreshold = 0.75; // Adjust as needed
         this.beatCooldown = 0.5; // Seconds between beats to prevent rapid triggers
         this.timeSinceLastBeat = 999; // Large initial number
+
+        // Visualizer
+        this.hue = 0;
+        this.saturation = 0.5;
+        this.lightness = 0;
     }
 
     addToUpdateList(object) {
@@ -129,6 +257,7 @@ class SeedScene extends Scene {
     handleCollision(audioManager) {
         if (!this.state.paused) {
             this.state.paused = true;
+            this.player.resetSpeed();
             audioManager.sound.stop();
             audioManager.playSoundEffect('deathsound.mp3', 1.0);
             setTimeout(() => {
@@ -175,8 +304,8 @@ class SeedScene extends Scene {
         this.obstacles = [];
 
         // Create new obstacles
-        const newObstacleCount = 10;
-        const startX = this.portal.position.x - 200;
+        const newObstacleCount = 5;
+        const startX = this.portal.position.x - 400;
         const endX = this.portal.position.x;
         const obstacleSpacing = (endX - startX) / newObstacleCount;
 
@@ -189,6 +318,7 @@ class SeedScene extends Scene {
         }
 
         this.player.resetPosition();
+        this.player.increaseSpeed(0.1);
     }
 
     update(timeStamp, audioManager) {
@@ -200,8 +330,24 @@ class SeedScene extends Scene {
             }
 
             if (gameStarted) {
-                this.player.position.x += 0.5; // Move player forward
+                this.player.position.x += this.player.speed; // Move player forward
             }
+
+            // Reposition lights relative to the player each frame
+            this.leftLight.position.set(
+                this.player.position.x - 5,
+                this.player.position.y + 10,
+                this.player.position.z - 5
+            );
+            this.rightLight.position.set(
+                this.player.position.x + 5,
+                this.player.position.y + 10,
+                this.player.position.z - 5
+            );
+
+            // Update the targets too, so the spots still point at the player
+            this.leftLight.target.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
+            this.rightLight.target.position.set(this.player.position.x, this.player.position.y, this.player.position.z);
 
             // Collision checks
             this.obstacles.forEach((obstacle) => {
@@ -230,6 +376,20 @@ class SeedScene extends Scene {
             // Apply audio effects (detect beats, color shifts)
             this.applyAudioEffects(audioManager);
 
+            // Update the background shader uniforms
+
+            // this.bgMaterial.uniforms.u_baseColor.value.set(1.0, 0.0, 0.0); // Bright red
+            // this.bgMaterial.uniforms.u_beatIntensity.value = 1.0; // Force full flash
+            this.bgMaterial.uniforms.u_time.value = timeStamp * 0.001; // convert ms to seconds if needed
+
+            // Decay the beat intensity if it's > 0
+            if (this.bgMaterial.uniforms.u_beatIntensity.value > 0) {
+                this.bgMaterial.uniforms.u_beatIntensity.value = Math.max(
+                    0,
+                    this.bgMaterial.uniforms.u_beatIntensity.value - 0.02
+                );
+            }
+
             // Update particles every frame
             this.updateParticles();
         }
@@ -249,15 +409,22 @@ class SeedScene extends Scene {
         const normalizedLow = avgLowFreq / 255;
         const normalizedHigh = avgHighFreq / 255;
 
-        this.pointLight.intensity = 1 + normalizedLow * 2;
+        //this.pointLight.intensity = 1 + normalizedLow * 2;
 
         const blueShift = normalizedHigh;
-        this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1);
+        this.ambientLight.color.setRGB(1, 1 - blueShift, 1);
 
+        this.hue = (averageFrequency / 255) * 360;
+        this.lightness = Math.min(1, 0.05 + (normalizedHigh * 0.3));
+        this.background.setHSL(this.hue / 360, this.saturation, this.lightness);
+
+        // shader
         const hue = (averageFrequency / 255) * 360;
-        const saturation = 0.5;
-        const lightness = 0.1 + (normalizedHigh * 0.4);
-        this.background.setHSL(hue / 360, saturation, lightness);
+        const saturation = 0.7;
+        const lightness = Math.min(1, 0.05 + (averageFrequency / 255) * 0.3);
+
+        const color = new THREE.Color().setHSL(hue/360, saturation, lightness);
+        this.bgMaterial.uniforms.u_baseColor.value.copy(color);
 
         // Beat detection logic:
         // If normalizedLow is high and we've waited at least beatCooldown seconds since last beat
@@ -265,13 +432,22 @@ class SeedScene extends Scene {
             // Trigger particles outward
             this.triggerParticleBeat();
             this.timeSinceLastBeat = 0;
+
+            // Also spike the beat intensity for the background
+            this.bgMaterial.uniforms.u_beatIntensity.value = 1.0;
         }
 
         this.previousLowFreq = normalizedLow;
     }
 
     triggerParticleBeat() {
-        console.log("Beat Detected!")
+        console.log("Beat Detected!");
+        this.saturation = 1;
+        this.lightness = 1;
+
+        // Spike background flash
+        this.bgMaterial.uniforms.u_beatIntensity.value = 1.0;
+
         // Give each particle an outward radial velocity and start their fade-out
         const positions = this.particlesGeometry.attributes.position.array;
         const velocities = this.particleVelocities;
