@@ -3,8 +3,8 @@ import { Mesh, ConeGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, 
 class FloatingObstacle extends Mesh {
     constructor(parent, x, y, z) {
         // Create a pointed obstacle using ConeGeometry
-        const geometry = new ConeGeometry(0.5, 2, 4); // Radius, Height, Sides
-        const material = new MeshStandardMaterial({ color: 0xff0000 });
+        const geometry = new ConeGeometry(0.5, 1, 4); // Radius, Height, Sides
+        const material = new MeshStandardMaterial({ color: 0x000000 });
 
         super(geometry, material);
 
@@ -25,7 +25,8 @@ class FloatingObstacle extends Mesh {
     }
 
     update() {
-        // Floating obstacles remain stationary
+        this.rotation.y += 0.02; // Slowly rotate around the Y-axis
+        this.rotation.x += 0.01; // Add a subtle X-axis rotation
     }
 }
 

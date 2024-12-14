@@ -2,7 +2,7 @@ import { Mesh, EdgesGeometry, LineBasicMaterial, LineSegments, PlaneGeometry, Me
 
 class Portal extends Mesh {
     constructor(parent, xPosition) {
-        const geometry = new PlaneGeometry(3, 7);
+        const geometry = new PlaneGeometry(9, 100);
         const material = new MeshStandardMaterial({
             color: 0x000000,       // Bright red for visibility
             emissive: 0x000000,    // Emissive red glow

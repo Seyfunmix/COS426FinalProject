@@ -44,7 +44,7 @@ class SeedScene extends Scene {
         const obstacles = [];
         this.obstacles = obstacles; // Store a reference to obstacles for external access
 
-        // Use an arrow function to preserve the `this` context
+        // Place obstacle function
         const placeObstacle = (x, z) => {
             // Create a new obstacle at the specified position
             const obstacle = new Obstacle(this, x, z);
@@ -82,6 +82,8 @@ class SeedScene extends Scene {
             platforms.push(platform);
             this.add(platform);
         };
+        
+        // Level layout 
 
         placeObstacle(-1645, 0); // Place an obstacle
         placeObstacle(-1545, 0); // Place an obstacle
@@ -146,7 +148,7 @@ class SeedScene extends Scene {
         placeObstacle(-515, 5); // Place an obstacle
 
         // big block of spikes
-        placeOrb(-449, 1, 0);
+        placeOrb(-445, 1, 0);
         placeObstacle(-450, 5); // Place an obstacle
         placeObstacle(-450, 4); // Place an obstacle
         placeObstacle(-450, 3); // Place an obstacle
@@ -232,7 +234,7 @@ class SeedScene extends Scene {
         placeObstacle(-300, 5); // Place an obstacle
 
         // big block of spikes
-        placeOrb(-249, 1, 0);
+        placeOrb(-245, 1, 0);
         placeObstacle(-250, 5); // Place an obstacle
         placeObstacle(-250, 4); // Place an obstacle
         placeObstacle(-250, 3); // Place an obstacle
@@ -293,7 +295,7 @@ class SeedScene extends Scene {
         placeObstacle(-210, -4); // Place an obstacle
         placeObstacle(-210, -5); // Place an obstacle
 
-        // random obstacles section. 10 obstacles for every 200 x positions
+        // Random obstacles section
         const obstacleCount = 10; // Number of obstacles
         const startX = -150; // Starting position of obstacles
         const endX = 150; // Ending position of obstacles
@@ -301,13 +303,13 @@ class SeedScene extends Scene {
 
         for (let i = 0; i < obstacleCount; i++) {
             const xPosition = startX + i * obstacleSpacing; // Evenly space obstacles
-            const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
+            const zPosition = Math.random() * 6 - 3; // Random z-offset for variety
             const obstacle = new Obstacle(this, xPosition, zPosition);
             obstacles.push(obstacle);
             this.add(obstacle);
         }
 
-        // Place the power-up in the scene
+        // Place the power-up in the scene function
         const placePowerUp = (x, y, z) => {
             const powerUp = new PowerUp(this, x, y, z);
             this.add(powerUp);
@@ -315,7 +317,7 @@ class SeedScene extends Scene {
         };
 
         this.powerUps = []; // Initialize array to track power-ups
-        placePowerUp(150, 1, 0); // Place power-up at camera switch position
+        placePowerUp(150, 1.5, 0); // Place power-up at camera switch position
 
         //same sequence but in new pov
 
@@ -345,7 +347,7 @@ class SeedScene extends Scene {
         placeObstacle(250, 5); // Place an obstacle
 
         // Big block of spikes
-        placeOrb(316, 1, 0);
+        placeOrb(320, 1, 0);
         placeObstacle(315, 5); // Place an obstacle
         placeObstacle(315, 4); // Place an obstacle
         placeObstacle(315, 3); // Place an obstacle
@@ -419,7 +421,7 @@ class SeedScene extends Scene {
         placeObstacle(455, 5); // Place an obstacle
 
         // Big block of spikes
-        placeOrb(504, 1, 0);
+        placeOrb(510, 1, 0);
         placeObstacle(505, 5); // Place an obstacle
         placeObstacle(505, 4); // Place an obstacle
         placeObstacle(505, 3); // Place an obstacle
@@ -468,21 +470,21 @@ class SeedScene extends Scene {
         placeObstacle(535, -4); // Place an obstacle
         placeObstacle(535, -5); // Place an obstacle
 
-        // random obstacles section 2
-        const obstacleCount2 = 7;
+        // Random obstacles section 2
+        const obstacleCount2 = 10;
         const startX2 = 600; // Starting position of obstacles
         const endX2 = 800; // Ending position of obstacles
         const obstacleSpacing2 = (endX2 - startX2) / obstacleCount;
 
         for (let i = 0; i < obstacleCount2; i++) {
             const xPosition = startX2 + i * obstacleSpacing2; // Evenly space obstacles
-            const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
+            const zPosition = Math.random() * 6 - 3; // Random z-offset for variety
             const obstacle = new Obstacle(this, xPosition, zPosition);
             obstacles.push(obstacle);
             this.add(obstacle);
         }
 
-        // last section before ship
+        // Last section before ship
         placeObstacle(810, 0); // Place an obstacle
         placeObstacle(810, -1); // Place an obstacle
         placeObstacle(810, -2); // Place an obstacle
@@ -508,7 +510,7 @@ class SeedScene extends Scene {
         placeObstacle(860, 5); // Place an obstacle
 
         // Big block of spikes
-        placeOrb(901, 1, 0);
+        placeOrb(905, 1, 0);
         placeObstacle(900, 5); // Place an obstacle
         placeObstacle(900, 4); // Place an obstacle
         placeObstacle(900, 3); // Place an obstacle
@@ -557,18 +559,80 @@ class SeedScene extends Scene {
         placeObstacle(930, -4); // Place an obstacle
         placeObstacle(930, -5); // Place an obstacle
 
+        // Add Obstacles
+        const FloatingObstacles = [];
+        this.FloatingObstacles = FloatingObstacles; // Store a reference to obstacles for external access
+  
+
         const placeFloatingObstacle = (x, y, z) => {
             const obstacle = new FloatingObstacle(this, x, y, z);
             this.add(obstacle);
+            FloatingObstacles.push(obstacle);
         };
 
-        // Add floating obstacles in ship mode area
-        placeFloatingObstacle(960, 3, 0);
-        placeFloatingObstacle(970, 2, 0);
-        placeFloatingObstacle(980, 4, 0);
-        placeFloatingObstacle(990, 1, 0);
+        placePowerUp(955, 1.5, 0); // Place power-up at camera switch position
+
+        // Add floating obstacles in ship mode section
+        
         placeFloatingObstacle(1000, 5, 0);
 
+        placeFloatingObstacle(1050, 3, 0);
+
+        placeFloatingObstacle(1100, 1, 0);
+
+        placeFloatingObstacle(1150, 7, 0);
+
+        placeFloatingObstacle(1200, 6, 0);
+        placeFloatingObstacle(1200, 8, 0);
+
+
+        placeFloatingObstacle(1250, 3, 0);
+        placeFloatingObstacle(1250, 4, 0);
+
+        placeFloatingObstacle(1300, 8, 0);
+        placeFloatingObstacle(1300, 9, 0);
+        placeFloatingObstacle(1300, 7, 0);
+
+
+        placePowerUp(1340, 3, 0); // Place power-up at camera switch position
+
+  
+        
+        placeFloatingObstacle(1450, 6, 0);
+        placeFloatingObstacle(1475, 3, 0);
+
+        placeFloatingObstacle(1500, 3, 0);
+        placeFloatingObstacle(1525, 1, 0);
+
+        placeFloatingObstacle(1550, 1, 0);
+        placeFloatingObstacle(1555, 7, 0);
+
+        placeFloatingObstacle(1600, 7, 0);
+        placeFloatingObstacle(1625, 6, 0);
+
+        placeFloatingObstacle(1650, 6, 0);
+        placeFloatingObstacle(1650, 8, 0);
+        placeFloatingObstacle(1675, 3, 0);
+        placeFloatingObstacle(1675, 4, 0);
+
+
+        placeFloatingObstacle(1700, 3, 0);
+        placeFloatingObstacle(1700, 4, 0);
+        placeFloatingObstacle(1725, 1, 0);
+        placeFloatingObstacle(1725, 2, 0);
+
+   
+     
+
+
+        placeFloatingObstacle(1750, 10, 0);
+        placeFloatingObstacle(1750, 1, 0);
+        placeFloatingObstacle(1750, 5, -3);
+        placeFloatingObstacle(1750, 5, 3);
+        placeFloatingObstacle(1750, 6, -3);
+        placeFloatingObstacle(1750, 6, 3);
+        // Level ends at x position 1775
+        
         // Add Lights
         this.ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light for general illumination
         this.add(this.ambientLight);
@@ -595,7 +659,7 @@ class SeedScene extends Scene {
         this.rightLight.angle = Math.PI / 6;
         this.rightLight.penumbra = 0.3;
 
-        // also set where they point (target)
+        // Set where they point (target)
         const leftTarget = new THREE.Object3D();
         leftTarget.position.set(
             this.player.position.x,
@@ -664,24 +728,30 @@ class SeedScene extends Scene {
         this.laserBeams = this.createLaserBeams();
     }
 
+    // Add object to update list function
     addToUpdateList(object) {
         this.state.updateList.push(object);
     }
-
+    // Has game started function
     setGameStarted(value) {
         this.state.gameStarted = value;
     }
 
+    // Start game function
     startGame() {
         this.state.gameStarted = true;
     }
-
+    // Handle death collision
     handleCollision(audioManager) {
         if (!this.state.paused) {
             this.state.paused = true;
             this.player.resetSpeed();
             audioManager.sound.stop();
+            
+            // Play the death sound effect
             audioManager.playSoundEffect('deathsound.mp3', 1.0);
+
+            // Pause for 1 second before restarting
             setTimeout(() => {
                 this.player.resetPosition();
                 audioManager.sound.play();
@@ -689,7 +759,8 @@ class SeedScene extends Scene {
             }, 1000);
         }
     }
-
+    
+    // Update scene function
     update(timeStamp, audioManager, inputManager) {
         const { updateList, gameStarted, paused } = this.state;
 
@@ -724,7 +795,7 @@ class SeedScene extends Scene {
                 });
             });
 
-            // Collision check
+            // Collision check for obstacles
             this.obstacles.forEach((obstacle) => {
                 if (
                     Math.abs(this.player.position.x - obstacle.position.x) <
@@ -738,17 +809,50 @@ class SeedScene extends Scene {
                 }
             });
 
+            // Collision check for flying obstacles
+            this.FloatingObstacles.forEach((obstacle) => {
+                const playerBounds = {
+                    x: this.player.position.x,
+                    y: this.player.position.y,
+                    z: this.player.position.z,
+                    sizeX: isShipMode ? 1.5 : 0.5, // Adjust width for ship mode
+                    sizeY: isShipMode ? 0.3 : 0.5, // Adjust height for ship mode
+                    sizeZ: 0.5, // Keep depth the same
+                };
+
+                const obstacleBounds = {
+                    x: obstacle.position.x,
+                    y: obstacle.position.y,
+                    z: obstacle.position.z,
+                    sizeX: 0.5,
+                    sizeY: 0.5,
+                    sizeZ: 0.5,
+                };
+
+                const collisionDetected =
+                    Math.abs(playerBounds.x - obstacleBounds.x) < playerBounds.sizeX + obstacleBounds.sizeX &&
+                    Math.abs(playerBounds.z - obstacleBounds.z) < playerBounds.sizeZ + obstacleBounds.sizeZ &&
+                    Math.abs(playerBounds.y - obstacleBounds.y) < playerBounds.sizeY + obstacleBounds.sizeY;
+
+                if (collisionDetected) {
+                    console.log('Collision detected! Pausing game...');
+                    this.handleCollision(audioManager);
+                }
+            });
+
             // Collision check with portal
             if (
-                Math.abs(this.player.position.x - this.portal.position.x) <
-                    1.0 &&
-                Math.abs(this.player.position.z - this.portal.position.z) <
-                    1.0 &&
-                this.player.position.y < 3.0 // Portal is 3 units tall and centered around y=1.5
+                Math.abs(this.player.position.x - this.portal.position.x) < 4.5 && // Half the width of the portal (9 / 2)
+                Math.abs(this.player.position.z - this.portal.position.z) < 1.0 && // Assuming portal thickness remains narrow
+                this.player.position.y > 0 && // Bottom of the portal is at y=0
+                this.player.position.y < 50 // Half the height of the portal (100 / 2)
             ) {
                 console.log('Player reached the portal!');
                 this.handlePortalCollision(audioManager);
+
+
             }
+
             // ----- Add Visual Effects Based on Music -----
             this.timeSinceLastBeat += 1 / 60; // Assuming ~60fps, increment by frame time as needed
             this.applyAudioEffects(audioManager);
@@ -798,6 +902,7 @@ class SeedScene extends Scene {
         }
     }
 
+    // Apply background audio visual effects function
     applyAudioEffects(audioManager) {
         // Get frequency data
         const frequencyData = audioManager.getFrequencyData();
@@ -848,28 +953,77 @@ class SeedScene extends Scene {
         this.previousLowFreq = normalizedLow;
     }
 
+    // Ending screen function when player goes into portal
     handlePortalCollision(audioManager) {
         this.state.paused = true;
-
+    
+        // Create the overlay
         const nextLevelOverlay = document.createElement('div');
         nextLevelOverlay.style.position = 'absolute';
         nextLevelOverlay.style.top = '0';
         nextLevelOverlay.style.left = '0';
         nextLevelOverlay.style.width = '100%';
         nextLevelOverlay.style.height = '100%';
-        nextLevelOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        nextLevelOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Darker background for better contrast
         nextLevelOverlay.style.display = 'flex';
+        nextLevelOverlay.style.flexDirection = 'column';
         nextLevelOverlay.style.alignItems = 'center';
         nextLevelOverlay.style.justifyContent = 'center';
-        nextLevelOverlay.style.color = 'white';
-        nextLevelOverlay.style.fontSize = '48px';
         nextLevelOverlay.style.zIndex = '999';
-        nextLevelOverlay.innerHTML =
-            '<div>Level Complete!<br><button id="nextLevelBtn">Continue</button></div>';
-
+    
+        // Add the title
+        const titleText = document.createElement('div');
+        titleText.innerText = 'Level Complete!';
+        titleText.style.color = 'black';
+        titleText.style.fontSize = '72px';
+        titleText.style.fontWeight = 'bold';
+        titleText.style.fontFamily = '"Press Start 2P", sans-serif'; // Same blocky font
+        titleText.style.textAlign = 'center';
+        titleText.style.textShadow = `
+            0 0 5px black,
+            0 0 10px black,
+            0 0 20px black,
+            0 0 30px black,
+            0 0 40px black,
+            0 0 50px black,
+            0 0 75px black
+        `; // White neon glow effect
+        titleText.style.webkitTextStroke = '2px white'; // White outline for the text
+        nextLevelOverlay.appendChild(titleText);
+    
+        // Add the button
+        const nextLevelBtn = document.createElement('button');
+        nextLevelBtn.innerText = 'Play Again';
+        nextLevelBtn.style.marginTop = '30px';
+        nextLevelBtn.style.padding = '15px 30px'; // Increased padding for a larger button
+        nextLevelBtn.style.fontSize = '24px';
+        nextLevelBtn.style.fontFamily = '"Press Start 2P", sans-serif'; // Same blocky font
+        nextLevelBtn.style.color = 'black';
+        nextLevelBtn.style.backgroundColor = 'white'; // White button background
+        nextLevelBtn.style.border = '2px solid black'; // Black border for contrast
+        nextLevelBtn.style.borderRadius = '5px'; // Slightly rounded corners
+        nextLevelBtn.style.textAlign = 'center';
+        nextLevelBtn.style.textShadow = `
+            0 0 5px white,
+            0 0 10px white,
+            0 0 20px white,
+            0 0 30px white,
+            0 0 40px white,
+            0 0 50px white,
+            0 0 75px white
+        `; // White neon glow effect for the text
+        nextLevelBtn.style.cursor = 'pointer';
+        nextLevelBtn.style.boxShadow = `
+            0 0 10px black,
+            0 0 20px black,
+            0 0 30px black
+        `; // Glow effect around the button itself
+        nextLevelOverlay.appendChild(nextLevelBtn);
+    
+        // Append the overlay to the document
         document.body.appendChild(nextLevelOverlay);
-
-        const nextLevelBtn = document.getElementById('nextLevelBtn');
+    
+        // Add button click event
         nextLevelBtn.addEventListener('click', () => {
             document.body.removeChild(nextLevelOverlay);
             this.player.resetPosition();
@@ -880,7 +1034,8 @@ class SeedScene extends Scene {
             audioManager.sound.play();
         });
     }
-
+    
+    // Possible next level function
     resetForNextLevel() {
         // Stop the music
         audioManager.sound.stop();
@@ -891,13 +1046,14 @@ class SeedScene extends Scene {
         this.player.resetPosition();
         this.player.increaseSpeed(0.1);
     }
-
+    // Color change function for beat detection
     triggerBeat() {
         console.log('Beat Detected!');
         this.saturation = 1;
         this.lightness = 1;
     }
 
+    // Create EQ Visualizer function
     createEQVisualizer() {
         const width = 2000;
         const height = 3000;
@@ -991,6 +1147,7 @@ class SeedScene extends Scene {
         return { mesh, uniforms };
     }
 
+    // Create lasers function
     createLaserBeams() {
         const beams = [];
         for (let i = 0; i < 5; i++) {

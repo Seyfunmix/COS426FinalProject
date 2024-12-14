@@ -1,15 +1,18 @@
-import { Mesh, SphereGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, LineBasicMaterial } from 'three';
+import { Mesh, CircleGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, LineBasicMaterial } from 'three';
 
 class PowerUp extends Mesh {
     constructor(parent, x, y, z) {
-        // Create a glowing golden sphere
-        const geometry = new SphereGeometry(0.5, 32, 32); // Smooth sphere with finer detail
+        // Create a glowing flat circle
+        const geometry = new CircleGeometry(5, 32); // Radius 5, 32 segments for smooth edges
         const material = new MeshStandardMaterial({ 
-            color: 0xffd700,       // Golden color
-            emissive: 0xffd700,    // Glowing golden emissive effect
+            color: 0x000000,       
+            emissive: 0x00000,    // Glowing yellow emissive color
             emissiveIntensity: 2.0 // High emissive intensity for a glowing effect
         });
         super(geometry, material);
+
+        // Rotate to face player
+        this.rotation.y = Math.PI / 2 + Math.PI;
 
         // Set the power-up's position
         this.position.set(x, y, z);
@@ -25,9 +28,7 @@ class PowerUp extends Mesh {
     }
 
     update() {
-        // Optional: Add rotation for visual effect
-        this.rotation.y += 0.02; // Slowly rotate around the Y-axis
-        this.rotation.x += 0.01; // Add a subtle X-axis rotation
+
     }
 }
 

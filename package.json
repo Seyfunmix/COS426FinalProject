@@ -1,9 +1,10 @@
 {
-  "name": "lower-case-dashed-name-of-project",
-  "repository": "cos426finalproject",
+  "name": "dash-3D",
+  "repository": "COS426FinalProject",
   "version": "0.1.0",
   "title": "Dash 3D",
   "description": "Rhythmic platformer inspired by Geometry Dash, featuring a first-person 3D perspective.",
+  "homepage": "https://github.com/Seyfunmix/COS426FinalProject",
   "keywords": [
     "Princeton",
     "graphics",

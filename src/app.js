@@ -9,14 +9,13 @@
 import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SeedScene } from 'scenes';
-import { AudioManager } from './AudioManager'; // Import your AudioManager
+import { AudioManager } from './AudioManager';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { Vector2 } from 'three';
-
 import * as THREE from 'three';
-import InputManager from './InputManager'; // Adjust the path as needed
+import InputManager from './InputManager'; 
 
 
 
@@ -25,7 +24,6 @@ const scene = new SeedScene();
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true });
 
-
 // Set up camera
 camera.position.set(6, 3, -10);
 camera.lookAt(new Vector3(0, 0, 0));
@@ -33,9 +31,8 @@ camera.lookAt(new Vector3(0, 0, 0));
 // Set up AudioManager
 const audioManager = new AudioManager(camera);
 
-
 // Ensure inputManager is properly initialized
-const inputManager = new InputManager(); // Replace with your actual InputManager implementation
+const inputManager = new InputManager(); 
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -53,9 +50,14 @@ controls.minDistance = 4;
 controls.maxDistance = 16;
 controls.update();
 
-
 // Game state
 let gameStarted = false;
+
+// Load a blocky font (Google Fonts)
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
+fontLink.rel = 'stylesheet';
+document.head.appendChild(fontLink);
 
 // Show a title screen overlay until the player clicks
 const titleOverlay = document.createElement('div');
@@ -64,16 +66,60 @@ titleOverlay.style.top = '0';
 titleOverlay.style.left = '0';
 titleOverlay.style.width = '100%';
 titleOverlay.style.height = '100%';
-titleOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+titleOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Darker background for better contrast
 titleOverlay.style.display = 'flex';
+titleOverlay.style.flexDirection = 'column'; // Stack the texts vertically
 titleOverlay.style.alignItems = 'center';
 titleOverlay.style.justifyContent = 'center';
-titleOverlay.style.color = 'white';
-titleOverlay.style.fontSize = '48px';
 titleOverlay.style.zIndex = '999';
-titleOverlay.innerText = 'Click to Start';
+
+// Create the main title
+const titleText = document.createElement('div');
+titleText.innerText = 'Dash 3D';
+titleText.style.color = 'black';
+titleText.style.fontSize = '72px'; // Larger font size for the game title
+titleText.style.textAlign = 'center';
+titleText.style.fontWeight = 'bold';
+titleText.style.fontFamily = '"Press Start 2P", sans-serif'; // Blocky cartoony font
+titleText.style.textShadow = `
+    0 0 5px white,
+    0 0 10px white,
+    0 0 20pxrgb(255, 255, 255),
+    0 0 30pxrgb(255, 255, 255),
+    0 0 40pxrgb(255, 255, 255),
+    0 0 50pxrgb(255, 255, 255),
+    0 0 75pxrgb(255, 255, 255)
+`; // Neon glow effect
+titleText.style.webkitTextStroke = '2px white'; // White outline for the text
+
+// Create the subtitle
+const subtitleText = document.createElement('div');
+subtitleText.innerText = 'Click to Start / Jump';
+subtitleText.style.color = 'black';
+subtitleText.style.fontSize = '24px'; // Smaller font size for the subtitle
+subtitleText.style.textAlign = 'center';
+subtitleText.style.marginTop = '20px'; // Add spacing below the main title
+subtitleText.style.fontFamily = '"Press Start 2P", sans-serif'; // Blocky cartoony font
+subtitleText.style.webkitTextStroke = '1px white'; // White outline for the text
+subtitleText.style.textShadow = `
+    0 0 5px white,
+    0 0 10px white,
+    0 0 20pxrgb(255, 255, 255),
+    0 0 30pxrgb(255, 255, 255),
+    0 0 40pxrgb(255, 255, 255),
+    0 0 50pxrgb(255, 255, 255),
+    0 0 75pxrgb(255, 255, 255)
+`; // Neon glow effect
+
+// Append texts to the overlay
+titleOverlay.appendChild(titleText);
+titleOverlay.appendChild(subtitleText);
+
+// Append the overlay to the document body
 document.body.appendChild(titleOverlay);
 
+
+// On click start game
 function onClickToStart() {
     gameStarted = true;
     scene.setGameStarted(true); // Update SeedScene's state
@@ -108,12 +154,16 @@ const onAnimationFrameHandler = (timeStamp) => {
     const isShipMode = player.position.x >= 950;
 
     if (isShipMode) {
-        // Ship mode camera logic
+        // Side view in ship
+        if (player.position.x <= 1350) {
         const playerPosition = player.position;
-        //camera.position.set(playerPosition.x - 5, playerPosition.y + 2, playerPosition.z + 5); // Dynamic position for ship mode
-        //camera.lookAt(playerPosition); // Focus on the player
+        camera.position.set(playerPosition.x - 5, playerPosition.y + 2, playerPosition.z + 5); // Dynamic position for ship mode
+        camera.lookAt(playerPosition); 
+        } else {
+        // First person in ship
         camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
         camera.lookAt(player.position.x + 1, player.position.y, player.position.z); // Adjust for movement direction
+        }
     } else if (isFirstPerson) {
         // First-person POV
         camera.position.set(player.position.x, player.position.y + 0.1, player.position.z); // Slightly above the cube
@@ -137,7 +187,7 @@ const onAnimationFrameHandler = (timeStamp) => {
             player.position.z + offsetZ
         );
 
-        const lookAtAhead = 5; // how far ahead of the player to look
+        const lookAtAhead = 5; // How far ahead of the player to look
         const lookAtHeight = player.position.y + 0.5;
 
         camera.lookAt(
@@ -179,8 +229,9 @@ window.addEventListener('mousedown', () => {
 });
 
 
+
 window.addEventListener('click', () => {
-    audioManager.playBackgroundMusic('finalmusic.mp3', 0.5);
+    audioManager.playBackgroundMusic('./finalmusic.mp3', 0.5);
 }, { once: true });
 
 
