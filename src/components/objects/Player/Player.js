@@ -39,18 +39,37 @@ import {
       parent.addToUpdateList(this);
     }
   
-    update() {
+    update(platforms) {
       // Apply gravity
       this.state.velocityY -= 0.01; // Gravity strength
       this.position.y += this.state.velocityY;
   
-      // Prevent falling through the ground
-      if (this.position.y < 1) {
-        this.position.y = 1; // Reset to ground level
-        this.state.velocityY = 0; // Stop downward velocity
-        this.state.isJumping = false;
+      // Check collision with platforms
+      let isOnPlatform = false;
+      platforms.forEach(platform => {
+          const platformTop = platform.position.y + 0.25; // Platform top surface (height / 2)
+          const isAbovePlatform = this.position.y > platformTop && this.position.y - platformTop <= 0.25;
+          const isWithinPlatformX = Math.abs(this.position.x - platform.position.x) <= 50; // Half the width
+          const isWithinPlatformZ = Math.abs(this.position.z - platform.position.z) <= 0.75; // Half the depth
+  
+          if (isAbovePlatform && isWithinPlatformX && isWithinPlatformZ) {
+              // Place the player on the platform
+              this.position.y = platformTop; // Adjust to stand on top of the platform
+              this.state.velocityY = 0; // Reset vertical velocity
+              this.state.isJumping = false; // Allow jumping again
+              isOnPlatform = true;
+          }
+      });
+  
+      // Check if player is on the ground if not on a platform
+      if (!isOnPlatform && this.position.y < 1) {
+          this.position.y = 1; // Reset to ground level
+          this.state.velocityY = 0; // Stop downward velocity
+          this.state.isJumping = false; // Allow jumping again
       }
-    }
+  }
+  
+  
   
     jump() {
       if (this.position.y === 1 && !this.state.isJumping) {
@@ -75,7 +94,7 @@ import {
     
     
     resetPosition() {
-      this.position.set(-3000, 1, 0);
+      this.position.set(-1775, 1, 0);
     }
 
     resetSpeed() {
