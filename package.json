@@ -2,8 +2,8 @@
   "name": "lower-case-dashed-name-of-project",
   "repository": "cos426finalproject",
   "version": "0.1.0",
-  "title": "PROJECT TITLE HERE",
-  "description": "SHORT DESCRIPTION OF PROJECT HERE. ONE TO TWO SENTENCES MAX",
+  "title": "Dash 3D",
+  "description": "Rhythmic platformer inspired by Geometry Dash, featuring a first-person 3D perspective.",
   "keywords": [
     "Princeton",
     "graphics",

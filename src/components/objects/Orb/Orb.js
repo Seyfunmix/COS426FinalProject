@@ -1,23 +1,50 @@
-import { Mesh, SphereGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, LineBasicMaterial } from 'three';
+import { Mesh, CylinderGeometry, SphereGeometry, MeshStandardMaterial, EdgesGeometry, LineSegments, LineBasicMaterial, Group } from 'three';
 
-class Orb extends Mesh {
+class Orb extends Group {
     constructor(parent, x, y, z) {
-        // Create a spherical orb
-        const geometry = new SphereGeometry(0.5, 16, 16); // Radius 0.5, smooth sphere
-        const material = new MeshStandardMaterial({ color: 0x000000, emissive: 0x000000, emissiveIntensity: 1.0 }); 
-        super(geometry, material);
+        super();
+
+        // Create a cylinder base for the pad
+        const baseGeometry = new CylinderGeometry(1.5, 1.5, 0.3, 32); // Radius, Height, Segments
+        const baseMaterial = new MeshStandardMaterial({
+            color: 0x000000,
+            emissive: 0x000000,
+            emissiveIntensity: 1.0,
+        });
+        const baseMesh = new Mesh(baseGeometry, baseMaterial);
+
+        // Add edges to the base
+        const baseEdges = new EdgesGeometry(baseGeometry);
+        const baseEdgeMaterial = new LineBasicMaterial({ color: 0xffffff });
+        const baseEdgeLines = new LineSegments(baseEdges, baseEdgeMaterial);
+        baseMesh.add(baseEdgeLines);
+
+        // Create a semi-sphere on top of the cylinder
+        const sphereGeometry = new SphereGeometry(1.5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2); // Semi-sphere
+        const sphereMaterial = new MeshStandardMaterial({
+            color: 0x000000,
+            emissive: 0x000000,
+            emissiveIntensity: 1.0,
+        });
+        const sphereMesh = new Mesh(sphereGeometry, sphereMaterial);
+
+        // Add edges to the semi-sphere
+        const sphereEdges = new EdgesGeometry(sphereGeometry);
+        const sphereEdgeLines = new LineSegments(sphereEdges, baseEdgeMaterial);
+        sphereMesh.add(sphereEdgeLines);
+
+        // Position the semi-sphere on top of the cylinder
+        sphereMesh.position.y = 0.15;
+
+        // Combine the base and the semi-sphere into the group
+        this.add(baseMesh);
+        this.add(sphereMesh);
 
         // Set the orb's position
         this.position.set(x, y, z); // Allow y-value customization
 
         // Add self to parent's update list
         parent.addToUpdateList(this);
-
-        // Add white edges
-        const edges = new EdgesGeometry(geometry); // Generate edges for the geometry
-        const edgeMaterial = new LineBasicMaterial({ color: 0xffffff }); // White edges
-        const edgeLines = new LineSegments(edges, edgeMaterial); // Create the edge lines
-        this.add(edgeLines); // Add the edges as a child of the orb mesh
 
         // Store a reference to the parent scene
         this.parentScene = parent;
@@ -27,7 +54,7 @@ class Orb extends Mesh {
     }
 
     update(player) {
-        // Optional: Add animation or visual feedback, e.g., slight rotation or glow pulsation
+        // Optional: Add animation or visual feedback
         this.rotation.y += 0.01; // Rotate slightly for visual effect
 
         // Check if the player is within activation range
@@ -35,21 +62,20 @@ class Orb extends Mesh {
     }
 
     checkActivation(player) {
-        if (this.isActivated) return; // Prevent re-activating the same orb
+        //if (this.isActivated) return; // Prevent re-activating the same orb
 
         const distance = this.position.distanceTo(player.position);
         const activationRange = 12; // Distance within which the orb is activated
 
         if (distance <= activationRange) {
             // Apply a jump boost to the player, targeting the orb's height
-            player.jumpBoost(this.position.y);
+            player.jumpBoost(this.position.y + 1); // Ensure the boost is slightly above the pad
             console.log("Orb activated! Jump boost applied.");
 
             // Prevent further activations
             this.isActivated = true;
 
-            // Optional: Change the orb's appearance to indicate activation
-            this.material.emissive.setHex(0x555555); // Dim the emissive glow
+            
         }
     }
 }
