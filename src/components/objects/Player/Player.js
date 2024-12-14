@@ -31,7 +31,7 @@ import {
       };
   
       // Set initial position
-      this.position.set(-300, 1, 0); // Start at one end of the ground
+      this.position.set(-3000, 1, 0); // Start at one end of the ground
   
       this.speed = initSpeed; // Initial speed
   
@@ -59,8 +59,23 @@ import {
       }
     }
   
+    jumpBoost(targetY) {
+        const heightDifference = targetY - this.position.y;
+        const baseBoost = 0.5; // Increase base boost strength for more immediate impact
+        const additionalBoost = Math.max(heightDifference * 0.3, 0); // Ensure positive boost
+    
+        // Directly update velocity for immediate jump
+        this.state.velocityY = baseBoost + additionalBoost;
+        this.state.isJumping = true;
+    
+        console.log(`Jump boost applied! VelocityY: ${this.state.velocityY}`);
+    }
+    
+    
+    
+    
     resetPosition() {
-      this.position.set(-300, 1, 0);
+      this.position.set(-3000, 1, 0);
     }
   
     increaseSpeed(amount) {

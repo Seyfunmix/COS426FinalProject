@@ -5,6 +5,7 @@ import Player from '../objects/Player/Player';
 import Ground from '../objects/Ground/Ground';
 import Obstacle from '../objects/Obstacle/Obstacle';
 import Portal from '../objects/Portal/Portal';
+import Orb from '../objects/Orb/Orb';
 
 
 class SeedScene extends Scene {
@@ -32,21 +33,76 @@ class SeedScene extends Scene {
         this.player = player; // Store a reference to the player for external access
         this.add(player);
 
-        // Add Obstacles (spaced evenly along the ground's length)
+        // Add Obstacles 
         const obstacles = [];
-        const obstacleCount = 10; // Number of obstacles
-        const startX = -140; // Starting position of obstacles
-        const endX = 140; // Ending position of obstacles
-        const obstacleSpacing = (endX - startX) / obstacleCount;
 
-        for (let i = 0; i < obstacleCount; i++) {
-            const xPosition = startX + i * obstacleSpacing; // Evenly space obstacles
-            const zPosition = Math.random() * 4 - 2; // Random z-offset for variety
-            const obstacle = new Obstacle(this, xPosition, zPosition);
-            obstacles.push(obstacle);
-            this.add(obstacle);
-        }
+        // Use an arrow function to preserve the `this` context
+        const placeObstacle = (x, z) => {
+        // Create a new obstacle at the specified position
+        const obstacle = new Obstacle(this, x, z);
+
+        // Add the obstacle to the scene
+        obstacles.push(obstacle);
+        this.add(obstacle);
+};
+
+const orbs = [];
+
+        // Place an orb function
+        const placeOrb = (x, y, z) => {
+            // Create a new orb at the specified position
+            const orb = new Orb(this, x, y, z);
+
+            // Add the orb to the scene
+            orbs.push(orb);
+            this.add(orb);
+        };
+
+        // Store a reference to orbs for external access
+        this.orbs = orbs;
+
         this.obstacles = obstacles; // Store a reference to obstacles for external access
+        placeObstacle(-2870, 0); // Place an obstacle
+        placeObstacle(-2770, 0); // Place an obstacle
+        placeObstacle(-2670, 0); // Place an obstacle
+
+        placeObstacle(-2570, 0); // Place an obstacle
+        placeObstacle(-2520, 0); // Place an obstacle
+        placeObstacle(-2470, 0); // Place an obstacle
+        placeObstacle(-2420, 0); // Place an obstacle
+
+        placeObstacle(-2370, 0); // Place an obstacle
+        placeObstacle(-2320, 0); // Place an obstacle
+        placeObstacle(-2270, 0); // Place an obstacle
+        placeObstacle(-2220, 0); // Place an obstacle
+
+        placeOrb(-2165, 2.5, 0);
+        placeObstacle(-2170, 0); // Place an obstacle
+        placeObstacle(-2160, 0); // Place an obstacle
+        placeObstacle(-2150, 0); // Place an obstacle
+        placeObstacle(-2140, 0); // Place an obstacle
+
+        placeOrb(-2066, 2.5, 0);
+        placeObstacle(-2070, 0); // Place an obstacle
+        placeObstacle(-2060, 0); // Place an obstacle
+        placeObstacle(-2050, 0); // Place an obstacle
+        placeObstacle(-2040, 0); // Place an obstacle
+
+        placeOrb(-1965, 2.5, 0);
+        placeObstacle(-1970, 0); // Place an obstacle
+        placeObstacle(-1960, 0); // Place an obstacle
+        placeObstacle(-1950, 0); // Place an obstacle
+        placeObstacle(-1940, 0); // Place an obstacle
+
+        placeOrb(-1865, 2.5, 0);
+        placeObstacle(-1870, 0); // Place an obstacle
+        placeObstacle(-1860, 0); // Place an obstacle
+        placeObstacle(-1850, 0); // Place an obstacle
+        placeObstacle(-1840, 0); // Place an obstacle
+
+        
+       
+
 
         // Add Lights
         this.ambientLight = new AmbientLight(0xffffff, 0.5); // Ambient light for general illumination
@@ -60,8 +116,11 @@ class SeedScene extends Scene {
         //this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
 
         // Add portal at the end of the level (e.g., at x=150)
-        this.portal = new Portal(this, 150);
+        this.portal = new Portal(this, 3000);
         this.add(this.portal);
+
+  
+        
     }
 
     addToUpdateList(object) {
@@ -100,10 +159,15 @@ class SeedScene extends Scene {
     update(timeStamp, audioManager) {
         const { updateList, gameStarted, paused } = this.state;
 
-        // Update all objects in the update list
         if (!paused) {
+            // Update all objects in the update list
             for (const obj of updateList) {
-                obj.update(timeStamp);
+                if (obj instanceof Orb) {
+                    // Pass the player to the orb's update method
+                    obj.update(this.player);
+                } else {
+                    obj.update(timeStamp);
+                }
             }
 
             // Only move player if the game has started
@@ -130,7 +194,7 @@ class SeedScene extends Scene {
                 this.player.position.y < 3.0 // Portal is 3 units tall and centered around y=1.5
             ) {
                 console.log('Player reached the portal!');
-                this.handlePortalCollision();
+                this.handlePortalCollision(audioManager);
             }
         }
 
@@ -173,7 +237,7 @@ class SeedScene extends Scene {
     }
 
 
-    handlePortalCollision() {
+    handlePortalCollision(audioManager) {
         this.state.paused = true;
 
         // Show a "Next Level" overlay
@@ -201,17 +265,17 @@ class SeedScene extends Scene {
 
             // Proceed to next level logic:
             // For example, reset player position, move portal further, or load a new scene
-            this.resetForNextLevel();
+            this.player.resetPosition();
+            // Stop the music
+            audioManager.sound.stop();
             this.state.paused = false;
+            // Restart the music
+            audioManager.sound.play();
         });
     }
 
-    resetForNextLevel() {
-        // Example of moving the portal and resetting player
-        this.player.resetPosition();
-        //this.portal.position.x += 200; // Move the portal further down the track
-        // Potentially generate new obstacles here as well
-    }
+    
+
 
     setGameStarted(value) {
         this.state.gameStarted = value; // Sync gameStarted state
