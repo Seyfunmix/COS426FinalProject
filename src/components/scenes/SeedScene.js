@@ -24,8 +24,6 @@ class SeedScene extends Scene {
         super();
 
         this.state = {
-            gui: new Dat.GUI(),
-            rotationSpeed: 1,
             updateList: [],
             gameStarted: false,
             paused: false,
