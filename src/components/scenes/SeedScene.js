@@ -783,9 +783,14 @@ class SeedScene extends Scene {
             const highNormalized = highAvg / 255;
 
             this.laserBeams.forEach((beam, i) => {
-                beam.position.x = this.player.position.x + 10;
+                beam.position.x = this.player.position.x + 9;
                 // Rotate beams slightly based on high frequencies
-                beam.rotation.y += 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                if (beam.position.z < 0) {
+                    beam.rotation.y -= 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                } else {
+                    beam.rotation.y += 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                }
+                
                 beam.material.color.setHSL(
                     0.3 + highNormalized * 0.7,
                     1.0,
@@ -995,9 +1000,9 @@ class SeedScene extends Scene {
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             const beam = new THREE.Mesh(geometry, material);
             beam.position.set(
-                this.player.position.x + 10,
-                this.player.position.y + 7,
-                this.player.position.z - 13
+                this.player.position.x + 9,
+                this.player.position.y + 6,
+                this.player.position.z - 15
             );
             beam.rotation.z = i * (Math.PI / 5);
             beams.push(beam);
@@ -1008,9 +1013,9 @@ class SeedScene extends Scene {
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             const beam = new THREE.Mesh(geometry, material);
             beam.position.set(
-                this.player.position.x + 10,
-                this.player.position.y + 7,
-                this.player.position.z + 13
+                this.player.position.x + 9,
+                this.player.position.y + 6,
+                this.player.position.z + 15
             );
             beam.rotation.z = i * (Math.PI / 5);
             beams.push(beam);
