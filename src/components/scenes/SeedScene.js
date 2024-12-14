@@ -658,6 +658,12 @@ class SeedScene extends Scene {
         this.hue = 0;
         this.saturation = 0.5;
         this.lightness = 0;
+
+        // Create a large plane behind the player for the EQ visualization
+        this.visualizer = this.createEQVisualizer();
+        this.add(this.visualizer.mesh);
+
+        this.laserBeams = this.createLaserBeams();
     }
 
     addToUpdateList(object) {
@@ -746,8 +752,46 @@ class SeedScene extends Scene {
                 this.handlePortalCollision(audioManager);
             }
             // ----- Add Visual Effects Based on Music -----
-            this.timeSinceLastBeat += 1/60; // Assuming ~60fps, increment by frame time as needed
+            this.timeSinceLastBeat += 1 / 60; // Assuming ~60fps, increment by frame time as needed
             this.applyAudioEffects(audioManager);
+
+            const frequencyData = audioManager.getFrequencyData();
+            const avgFreq = audioManager.getAverageFrequency();
+            const uniforms = this.visualizer.uniforms;
+
+            // Pass frequency data to the shader
+            for (let i = 0; i < 128; i++) {
+                uniforms.u_frequencyData.value[i] = frequencyData[i];
+            }
+
+            uniforms.u_time.value = timeStamp * 0.001;
+            uniforms.u_averageFreq.value = avgFreq;
+
+            // If a beat is detected in applyAudioEffects, set a short-lived flash:
+            // For example, you can gradually fade out u_beatFlash each frame
+            if (this.timeSinceLastBeat < 0.1) {
+                uniforms.u_beatFlash.value =
+                    1.0 - this.timeSinceLastBeat * 10.0;
+            } else {
+                uniforms.u_beatFlash.value = 0.0;
+            }
+
+            // Update lasers: rotate them or change color based on high frequencies
+            const highFreqSlice = frequencyData.slice(80, 128);
+            const highAvg =
+                highFreqSlice.reduce((a, b) => a + b, 0) / highFreqSlice.length;
+            const highNormalized = highAvg / 255;
+
+            this.laserBeams.forEach((beam, i) => {
+                beam.position.x = this.player.position.x + 10;
+                // Rotate beams slightly based on high frequencies
+                beam.rotation.y += 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                beam.material.color.setHSL(
+                    0.3 + highNormalized * 0.7,
+                    1.0,
+                    0.5 + highNormalized * 0.5
+                );
+            });
         }
     }
 
@@ -780,12 +824,11 @@ class SeedScene extends Scene {
         //this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1); // Shift towards blue
         this.ambientLight.color.setRGB(1, 1, 1);
 
-
         // Optionally, adjust the background color based on frequencies
         // For example, shift background color hue based on average frequency
         const hue = (averageFrequency / 255) * 360; // 0 to 360 degrees
         const saturation = 0.1 + avgHighFreq / 127; // 50%
-        const lightness = 0.1 + normalizedHigh * 0.9; // Between 10% and 50%
+        const lightness = 0.1 + normalizedHigh * (avgHighFreq/127); // Between 10% and 50%
         this.background.setHSL(hue / 360, saturation, lightness);
 
         // Beat detection logic:
@@ -797,9 +840,6 @@ class SeedScene extends Scene {
         ) {
             this.triggerBeat();
             this.timeSinceLastBeat = 0;
-
-            // Also spike the beat intensity for the background
-            //this.bgMaterial.uniforms.u_beatIntensity.value = 1.0;
         }
 
         this.previousLowFreq = normalizedLow;
@@ -853,6 +893,130 @@ class SeedScene extends Scene {
         console.log('Beat Detected!');
         this.saturation = 1;
         this.lightness = 1;
+    }
+
+    createEQVisualizer() {
+        const width = 2000;
+        const height = 3000;
+        const segments = 128;
+        const geometry = new THREE.PlaneGeometry(
+            width,
+            height,
+            segments,
+            segments
+        );
+        geometry.rotateX(-Math.PI / 2); // If you want it as a ground plane behind player
+
+        const uniforms = {
+            u_time: { value: 0 },
+            u_frequencyData: { value: new Float32Array(128) }, // Assuming 128 bands from analyser
+            u_averageFreq: { value: 0.0 },
+            u_beatFlash: { value: 0.0 },
+            u_colorShift: { value: 0.0 },
+        };
+
+        const vertexShader = `
+            uniform float u_time;
+            uniform float u_averageFreq;
+            uniform float u_beatFlash;
+            uniform float u_colorShift;
+            uniform float u_frequencyData[128];
+    
+            varying float v_height;
+            varying vec2 v_uv;
+    
+            void main() {
+                v_uv = uv;
+                // Map UV coordinates to frequency array index
+                float freqIndex = floor(v_uv.x * 127.0);
+                freqIndex = clamp(freqIndex, 0.0, 127.0);
+                int iIndex = int(freqIndex);
+    
+                // Get frequency value and create some displacement
+                float freqValue = u_frequencyData[iIndex] / 255.0;
+                
+                // Basic wave displacement: vertical movement influenced by frequency data
+                float displacement = freqValue * 10.0 * (0.5 - abs(v_uv.y - 0.5)) 
+                                     + sin((v_uv.x * 10.0 + u_time) * 2.0) * freqValue;
+    
+                vec3 newPosition = position + normal * displacement;
+                v_height = displacement;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float u_time;
+            uniform float u_averageFreq;
+            uniform float u_beatFlash;
+            varying float v_height;
+            varying vec2 v_uv;
+    
+            void main() {
+                // Basic color shift using HSL-like logic
+                float hue = fract((u_time * 0.05) + v_uv.x + v_uv.y * 0.5 + u_averageFreq * 0.01);
+                float saturation = 0.8 + u_averageFreq * 0.001;
+                float lightness = 0.5 + (v_height * 0.05);
+                
+                // On beat flash
+                lightness += u_beatFlash * 0.5;
+    
+                // Convert HSL to RGB (approximation or use a function)
+                // For simplicity, let's do a quick and dirty hue-based coloring:
+                vec3 color = vec3(hue, saturation, lightness);
+                // A proper HSL to RGB conversion would be better, but omitted for brevity.
+    
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms,
+            side: THREE.DoubleSide,
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(
+            this.player.position.x + 2000,
+            this.player.position.y + 30,
+            this.player.position.z
+        );
+        // Position it far behind the player and maybe rotate or orient it as needed
+
+        return { mesh, uniforms };
+    }
+
+    createLaserBeams() {
+        const beams = [];
+        for (let i = 0; i < 5; i++) {
+            const geometry = new THREE.CylinderGeometry(0.05, 0.05, 500, 8);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const beam = new THREE.Mesh(geometry, material);
+            beam.position.set(
+                this.player.position.x + 10,
+                this.player.position.y + 7,
+                this.player.position.z - 13
+            );
+            beam.rotation.z = i * (Math.PI / 5);
+            beams.push(beam);
+            this.add(beam);
+        }
+        for (let i = 0; i < 5; i++) {
+            const geometry = new THREE.CylinderGeometry(0.05, 0.05, 500, 8);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const beam = new THREE.Mesh(geometry, material);
+            beam.position.set(
+                this.player.position.x + 10,
+                this.player.position.y + 7,
+                this.player.position.z + 13
+            );
+            beam.rotation.z = i * (Math.PI / 5);
+            beams.push(beam);
+            this.add(beam);
+        }
+        return beams;
     }
 }
 
