@@ -6,6 +6,7 @@ import Ground from '../objects/Ground/Ground';
 import Obstacle from '../objects/Obstacle/Obstacle';
 import Portal from '../objects/Portal/Portal';
 import Orb from '../objects/Orb/Orb';
+import Platform from '../objects/Platform/Platform';
 
 
 class SeedScene extends Scene {
@@ -62,6 +63,24 @@ const orbs = [];
         this.orbs = orbs;
 
         this.obstacles = obstacles; // Store a reference to obstacles for external access
+
+
+        // Add Platforms
+        const platforms = [];
+        this.platforms = platforms;
+
+        // Use an arrow function to preserve the `this` context
+        const placePlatform = (x, y, z) => {
+            // Create a new platform at the specified position
+            const platform = new Platform(this, x, y, z);
+
+            // Add the platform to the scene
+            platforms.push(platform);
+            this.add(platform);
+        };
+
+
+
         placeObstacle(-1645, 0); // Place an obstacle
         placeObstacle(-1545, 0); // Place an obstacle
         placeObstacle(-1445, 0); // Place an obstacle
@@ -99,6 +118,182 @@ const orbs = [];
         placeObstacle(-635, 0); // Place an obstacle
         placeObstacle(-625, 0); // Place an obstacle
         placeObstacle(-615, 0); // Place an obstacle
+
+        placeObstacle(-565, 0); // Place an obstacle
+        placeObstacle(-565, -1); // Place an obstacle
+        placeObstacle(-565, -2); // Place an obstacle
+        placeObstacle(-565, -3); // Place an obstacle
+        placeObstacle(-565, -4); // Place an obstacle
+        placeObstacle(-565, -5); // Place an obstacle
+        placeObstacle(-565, 1); // Place an obstacle
+        placeObstacle(-565, 2); // Place an obstacle
+        placeObstacle(-565, 3); // Place an obstacle
+        placeObstacle(-565, 4); // Place an obstacle
+        placeObstacle(-565, 5); // Place an obstacle
+    
+
+        placeObstacle(-515, 0); // Place an obstacle
+        placeObstacle(-515, -1); // Place an obstacle
+        placeObstacle(-515, -2); // Place an obstacle
+        placeObstacle(-515, -3); // Place an obstacle
+        placeObstacle(-515, -4); // Place an obstacle
+        placeObstacle(-515, -5); // Place an obstacle
+        placeObstacle(-515, 1); // Place an obstacle
+        placeObstacle(-515, 2); // Place an obstacle
+        placeObstacle(-515, 3); // Place an obstacle
+        placeObstacle(-515, 4); // Place an obstacle
+        placeObstacle(-515, 5); // Place an obstacle
+
+        // big block of spikes
+        placeOrb(-449, 2.5, 0);
+        placeObstacle(-450, 5); // Place an obstacle
+        placeObstacle(-450, 4); // Place an obstacle
+        placeObstacle(-450, 3); // Place an obstacle
+        placeObstacle(-450, 2); // Place an obstacle
+        placeObstacle(-450, 1); // Place an obstacle
+        placeObstacle(-450, 0); // Place an obstacle
+        placeObstacle(-450, -1); // Place an obstacle
+        placeObstacle(-450, -2); // Place an obstacle
+        placeObstacle(-450, -3); // Place an obstacle
+        placeObstacle(-450, -4); // Place an obstacle
+        placeObstacle(-450, -5); // Place an obstacle
+        
+        placeObstacle(-440, 5); // Place an obstacle
+        placeObstacle(-440, 4); // Place an obstacle
+        placeObstacle(-440, 3); // Place an obstacle
+        placeObstacle(-440, 2); // Place an obstacle
+        placeObstacle(-440, 1); // Place an obstacle
+        placeObstacle(-440, 0); // Place an obstacle
+        placeObstacle(-440, -1); // Place an obstacle
+        placeObstacle(-440, -2); // Place an obstacle
+        placeObstacle(-440, -3); // Place an obstacle
+        placeObstacle(-440, -4); // Place an obstacle
+        placeObstacle(-440, -5); // Place an obstacle
+
+        placeObstacle(-430, 5); // Place an obstacle
+        placeObstacle(-430, 4); // Place an obstacle
+        placeObstacle(-430, 3); // Place an obstacle
+        placeObstacle(-430, 2); // Place an obstacle
+        placeObstacle(-430, 1); // Place an obstacle
+        placeObstacle(-430, 0); // Place an obstacle
+        placeObstacle(-430, -1); // Place an obstacle
+        placeObstacle(-430, -2); // Place an obstacle
+        placeObstacle(-430, -3); // Place an obstacle
+        placeObstacle(-430, -4); // Place an obstacle
+        placeObstacle(-430, -5); // Place an obstacle
+        
+        placeObstacle(-420, 5); // Place an obstacle
+        placeObstacle(-420, 4); // Place an obstacle
+        placeObstacle(-420, 3); // Place an obstacle
+        placeObstacle(-420, 2); // Place an obstacle
+        placeObstacle(-420, 1); // Place an obstacle
+        placeObstacle(-420, 0); // Place an obstacle
+        placeObstacle(-420, -1); // Place an obstacle
+        placeObstacle(-420, -2); // Place an obstacle
+        placeObstacle(-420, -3); // Place an obstacle
+        placeObstacle(-420, -4); // Place an obstacle
+        placeObstacle(-420, -5); // Place an obstacle
+
+        placeObstacle(-410, 5); // Place an obstacle
+        placeObstacle(-410, 4); // Place an obstacle
+        placeObstacle(-410, 3); // Place an obstacle
+        placeObstacle(-410, 2); // Place an obstacle
+        placeObstacle(-410, 1); // Place an obstacle
+        placeObstacle(-410, 0); // Place an obstacle
+        placeObstacle(-410, -1); // Place an obstacle
+        placeObstacle(-410, -2); // Place an obstacle
+        placeObstacle(-410, -3); // Place an obstacle
+        placeObstacle(-410, -4); // Place an obstacle
+        placeObstacle(-410, -5); // Place an obstacle
+
+
+        placeObstacle(-350, 0); // Place an obstacle
+        placeObstacle(-350, -1); // Place an obstacle
+        placeObstacle(-350, -2); // Place an obstacle
+        placeObstacle(-350, -3); // Place an obstacle
+        placeObstacle(-350, -4); // Place an obstacle
+        placeObstacle(-350, -5); // Place an obstacle
+        placeObstacle(-350, 1); // Place an obstacle
+        placeObstacle(-350, 2); // Place an obstacle
+        placeObstacle(-350, 3); // Place an obstacle
+        placeObstacle(-350, 4); // Place an obstacle
+        placeObstacle(-350, 5); // Place an obstacle
+    
+
+        placeObstacle(-300, 0); // Place an obstacle
+        placeObstacle(-300, -1); // Place an obstacle
+        placeObstacle(-300, -2); // Place an obstacle
+        placeObstacle(-300, -3); // Place an obstacle
+        placeObstacle(-300, -4); // Place an obstacle
+        placeObstacle(-300, -5); // Place an obstacle
+        placeObstacle(-300, 1); // Place an obstacle
+        placeObstacle(-300, 2); // Place an obstacle
+        placeObstacle(-300, 3); // Place an obstacle
+        placeObstacle(-300, 4); // Place an obstacle
+        placeObstacle(-300, 5); // Place an obstacle
+
+        // big block of spikes
+        placeOrb(-249, 2.5, 0);
+        placeObstacle(-250, 5); // Place an obstacle
+        placeObstacle(-250, 4); // Place an obstacle
+        placeObstacle(-250, 3); // Place an obstacle
+        placeObstacle(-250, 2); // Place an obstacle
+        placeObstacle(-250, 1); // Place an obstacle
+        placeObstacle(-250, 0); // Place an obstacle
+        placeObstacle(-250, -1); // Place an obstacle
+        placeObstacle(-250, -2); // Place an obstacle
+        placeObstacle(-250, -3); // Place an obstacle
+        placeObstacle(-250, -4); // Place an obstacle
+        placeObstacle(-250, -5); // Place an obstacle
+        
+        placeObstacle(-240, 5); // Place an obstacle
+        placeObstacle(-240, 4); // Place an obstacle
+        placeObstacle(-240, 3); // Place an obstacle
+        placeObstacle(-240, 2); // Place an obstacle
+        placeObstacle(-240, 1); // Place an obstacle
+        placeObstacle(-240, 0); // Place an obstacle
+        placeObstacle(-240, -1); // Place an obstacle
+        placeObstacle(-240, -2); // Place an obstacle
+        placeObstacle(-240, -3); // Place an obstacle
+        placeObstacle(-240, -4); // Place an obstacle
+        placeObstacle(-240, -5); // Place an obstacle
+
+        placeObstacle(-230, 5); // Place an obstacle
+        placeObstacle(-230, 4); // Place an obstacle
+        placeObstacle(-230, 3); // Place an obstacle
+        placeObstacle(-230, 2); // Place an obstacle
+        placeObstacle(-230, 1); // Place an obstacle
+        placeObstacle(-230, 0); // Place an obstacle
+        placeObstacle(-230, -1); // Place an obstacle
+        placeObstacle(-230, -2); // Place an obstacle
+        placeObstacle(-230, -3); // Place an obstacle
+        placeObstacle(-230, -4); // Place an obstacle
+        placeObstacle(-230, -5); // Place an obstacle
+        
+        placeObstacle(-220, 5); // Place an obstacle
+        placeObstacle(-220, 4); // Place an obstacle
+        placeObstacle(-220, 3); // Place an obstacle
+        placeObstacle(-220, 2); // Place an obstacle
+        placeObstacle(-220, 1); // Place an obstacle
+        placeObstacle(-220, 0); // Place an obstacle
+        placeObstacle(-220, -1); // Place an obstacle
+        placeObstacle(-220, -2); // Place an obstacle
+        placeObstacle(-220, -3); // Place an obstacle
+        placeObstacle(-220, -4); // Place an obstacle
+        placeObstacle(-220, -5); // Place an obstacle
+
+        placeObstacle(-210, 5); // Place an obstacle
+        placeObstacle(-210, 4); // Place an obstacle
+        placeObstacle(-210, 3); // Place an obstacle
+        placeObstacle(-210, 2); // Place an obstacle
+        placeObstacle(-210, 1); // Place an obstacle
+        placeObstacle(-210, 0); // Place an obstacle
+        placeObstacle(-210, -1); // Place an obstacle
+        placeObstacle(-210, -2); // Place an obstacle
+        placeObstacle(-210, -3); // Place an obstacle
+        placeObstacle(-210, -4); // Place an obstacle
+        placeObstacle(-210, -5); // Place an obstacle
+       
         
 
         
@@ -166,6 +361,9 @@ const orbs = [];
                 if (obj instanceof Orb) {
                     // Pass the player to the orb's update method
                     obj.update(this.player);
+                } else if (obj instanceof Player) {
+                    // Pass platforms to the player's update method for collision detection
+                    obj.update(this.platforms);
                 } else {
                     obj.update(timeStamp);
                 }

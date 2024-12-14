@@ -38,7 +38,7 @@ class Orb extends Mesh {
         if (this.isActivated) return; // Prevent re-activating the same orb
 
         const distance = this.position.distanceTo(player.position);
-        const activationRange = 10; // Distance within which the orb is activated
+        const activationRange = 12; // Distance within which the orb is activated
 
         if (distance <= activationRange) {
             // Apply a jump boost to the player, targeting the orb's height
