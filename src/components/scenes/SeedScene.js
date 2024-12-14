@@ -745,10 +745,10 @@ class SeedScene extends Scene {
                 console.log('Player reached the portal!');
                 this.handlePortalCollision(audioManager);
             }
+            // ----- Add Visual Effects Based on Music -----
+            this.timeSinceLastBeat += 1/60; // Assuming ~60fps, increment by frame time as needed
+            this.applyAudioEffects(audioManager);
         }
-
-        // ----- Add Visual Effects Based on Music -----
-        this.applyAudioEffects(audioManager);
     }
 
     applyAudioEffects(audioManager) {
@@ -769,22 +769,40 @@ class SeedScene extends Scene {
 
         // Normalize values (0 to 1)
         const normalizedLow = avgLowFreq / 255;
-        const normalizedHigh = avgHighFreq / 255;
+        const normalizedHigh = avgHighFreq / 127;
 
         // Adjust PointLight intensity based on low frequencies
         //this.pointLight.intensity = 1 + normalizedLow * 2; // Base intensity + pulse
 
         // Adjust ambient light color based on high frequencies
         // For example, shift towards blue on high frequencies
-        const blueShift = normalizedHigh;
-        this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1); // Shift towards blue
+        //const blueShift = normalizedHigh;
+        //this.ambientLight.color.setRGB(1 - blueShift, 1 - blueShift, 1); // Shift towards blue
+        this.ambientLight.color.setRGB(1, 1, 1);
+
 
         // Optionally, adjust the background color based on frequencies
         // For example, shift background color hue based on average frequency
         const hue = (averageFrequency / 255) * 360; // 0 to 360 degrees
-        const saturation = 0.5; // 50%
-        const lightness = 0.1 + normalizedHigh * 0.4; // Between 10% and 50%
+        const saturation = 0.1 + avgHighFreq / 127; // 50%
+        const lightness = 0.1 + normalizedHigh * 0.9; // Between 10% and 50%
         this.background.setHSL(hue / 360, saturation, lightness);
+
+        // Beat detection logic:
+        // If normalizedLow is high and we've waited at least beatCooldown seconds since last beat
+        //console.log('Average: %d Low: %d -> %d High: %d -> %d', averageFrequency, avgLowFreq, normalizedLow, avgHighFreq, normalizedHigh)
+        if (
+            normalizedLow > this.beatThreshold &&
+            this.timeSinceLastBeat > this.beatCooldown
+        ) {
+            this.triggerBeat();
+            this.timeSinceLastBeat = 0;
+
+            // Also spike the beat intensity for the background
+            //this.bgMaterial.uniforms.u_beatIntensity.value = 1.0;
+        }
+
+        this.previousLowFreq = normalizedLow;
     }
 
     handlePortalCollision(audioManager) {
@@ -831,7 +849,7 @@ class SeedScene extends Scene {
         this.player.increaseSpeed(0.1);
     }
 
-    triggerParticleBeat() {
+    triggerBeat() {
         console.log('Beat Detected!');
         this.saturation = 1;
         this.lightness = 1;
