@@ -16,6 +16,9 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { Vector2 } from 'three';
 import * as THREE from 'three';
 import InputManager from './InputManager'; 
+import { Clock } from 'three';
+
+const clock = new Clock();
 
 
 
@@ -142,6 +145,13 @@ window.addEventListener('mousemove', (event) => {
 
 // Render loop
 const onAnimationFrameHandler = (timeStamp) => {
+
+    // Get elapsed time (seconds) since last frame
+    const deltaTime = clock.getDelta();  // returns the time in seconds since the previous call
+
+    // Update everything based on deltaTime
+    updateScene(timeStamp, deltaTime);
+
     controls.update();
 
     const player = scene.player;
@@ -199,13 +209,19 @@ const onAnimationFrameHandler = (timeStamp) => {
 
     // Render and update scene
     renderer.render(scene, camera);
-    scene.update && scene.update(timeStamp, audioManager, inputManager);
+    //scene.update(deltaTime, audioManager, inputManager);
 
     window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
 
 
+
+// Instead of 'scene.update(...)' directly in the loop, 
+// pass deltaTime to a function that updates the scene logic.
+function updateScene(timeStamp, deltaTime) {
+    scene.update(timeStamp, deltaTime, audioManager, inputManager);
+}
 
 
 

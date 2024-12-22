@@ -761,7 +761,7 @@ class SeedScene extends Scene {
     }
     
     // Update scene function
-    update(timeStamp, audioManager, inputManager) {
+    update(timeStamp, deltaTime, audioManager, inputManager) {
         const { updateList, gameStarted, paused } = this.state;
 
         if (!paused) {
@@ -775,7 +775,7 @@ class SeedScene extends Scene {
                     obj.update(this.player);
                 } else if (obj instanceof Player) {
                     // Pass platforms to the player's update method for collision detection
-                    obj.update(this.platforms, isShipMode, inputManager);
+                    obj.update(deltaTime, this.platforms, isShipMode, inputManager);
                 } else {
                     obj.update(timeStamp);
                 }
@@ -783,7 +783,7 @@ class SeedScene extends Scene {
 
             // Only move player if the game has started
             if (gameStarted) {
-                this.player.position.x += 0.5; // Move player forward
+                this.player.position.x += 60 * deltaTime; // Move player forward
             }
 
             // Example: Additional logic for other game interactions
@@ -888,9 +888,9 @@ class SeedScene extends Scene {
                 beam.position.x = this.player.position.x + 9;
                 // Rotate beams slightly based on high frequencies
                 if (beam.position.z < 0) {
-                    beam.rotation.y -= 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                    beam.rotation.y -= (1.2 + (highAvg/127) * 6 + 1.2 * Math.random()) * deltaTime;
                 } else {
-                    beam.rotation.y += 0.01 + (highAvg/127) * 0.05 + 0.01 * Math.random();
+                    beam.rotation.y += (1.2 + (highAvg/127) * 6 + 1.2 * Math.random()) * deltaTime;
                 }
                 
                 beam.material.color.setHSL(

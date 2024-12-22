@@ -63,10 +63,11 @@ class Player extends Mesh {
 
       this.maxHeight = 10; // Max height cap for ship mode
       this.gravity = -0.02; // Downward force when not flying
+      this.jumpStrength = 0.3
       this.shipSpeed = 0.1; // Speed of ascent
   }
 
-  update(platforms, isShipMode, inputManager) {
+  update(deltaTime, platforms, isShipMode, inputManager) {
       // Show or hide the ship based on the mode
       this.shipMesh.visible = isShipMode;
 
@@ -81,7 +82,7 @@ class Player extends Mesh {
           }
 
           // Update the player's position
-          this.position.y += this.state.velocityY;
+          this.position.y += this.state.velocityY * 120 * deltaTime;
 
           // Enforce the max height cap
           if (this.position.y > this.maxHeight) {
@@ -96,8 +97,8 @@ class Player extends Mesh {
           }
       } else {
           // Normal game mode (platform collision logic)
-          this.state.velocityY -= 0.01; // Gravity strength
-          this.position.y += this.state.velocityY;
+          this.state.velocityY += this.gravity; // Gravity strength
+          this.position.y += this.state.velocityY * 120 * deltaTime;
 
           // Check collision with platforms
           let isOnPlatform = false;
@@ -131,7 +132,7 @@ class Player extends Mesh {
   // Jump function
   jump() {
       if (this.position.y === 1 && !this.state.isJumping) {
-          this.state.velocityY = 0.3; // Jump strength
+          this.state.velocityY = this.jumpStrength; // Jump strength
           this.state.isJumping = true;
       }
   }
@@ -147,7 +148,7 @@ class Player extends Mesh {
   // Jump boost function for jump pads
   jumpBoost(targetY) {
     const heightDifference = targetY - this.position.y;
-    const baseBoost = 0.5; // Increase base boost strength for more immediate impact
+    const baseBoost = 0.6; // Increase base boost strength for more immediate impact
     const additionalBoost = Math.max(heightDifference * 0.3, 0); // Ensure positive boost
 
     // Directly update velocity for immediate jump
